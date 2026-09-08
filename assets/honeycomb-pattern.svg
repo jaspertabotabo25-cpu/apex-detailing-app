@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="160" height="277.13" viewBox="0 0 160 277.13">
+  <defs>
+    <!-- Regular hexagon centered at (0,0), radius 92.376 -->
+    <!-- Points: (0, -92.38), (80, -46.19), (80, 46.19), (0, 92.38), (-80, 46.19), (-80, -46.19) -->
+    <polygon id="hex" points="0,-92.38 80,-46.19 80,46.19 0,92.38 -80,46.19 -80,-46.19"
+             fill="none" stroke="rgba(255, 255, 255, 0.08)" stroke-width="1.2" stroke-linejoin="round"/>
+  </defs>
+
+  <!-- Hexagon grid positions for seamless 160 x 277.13 tiling -->
+  <!-- Center column: x = 80 -->
+  <use href="#hex" x="80" y="46.19"/>
+  <use href="#hex" x="80" y="230.94"/>
+
+  <!-- Left boundary: x = 0 -->
+  <use href="#hex" x="0" y="138.56"/>
+  <use href="#hex" x="0" y="-46.19"/>
+  <use href="#hex" x="0" y="323.31"/>
+
+  <!-- Right boundary: x = 160 -->
+  <use href="#hex" x="160" y="138.56"/>
+  <use href="#hex" x="160" y="-46.19"/>
+  <use href="#hex" x="160" y="323.31"/>
+</svg>
