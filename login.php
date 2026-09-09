@@ -71,7 +71,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <form method="POST" action="">
       <div class="form-group">
         <label for="email">Email Address</label>
-        <input type="email" id="email" name="email" required>
+        <input type="email" id="email" name="email" required value="<?= htmlspecialchars($email ?? '', ENT_QUOTES, 'UTF-8') ?>">
       </div>
       <div class="form-group">
         <label for="password">Password</label>

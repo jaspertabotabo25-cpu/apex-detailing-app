@@ -72,6 +72,7 @@ $appointments = $stmt->fetchAll();
                         <tr>
                             <th>ID</th>
                             <th>Client</th>
+                            <th>Contact & Location</th>
                             <th>Service Type</th>
                             <th>Date & Time</th>
                             <th>Status</th>
@@ -83,6 +84,10 @@ $appointments = $stmt->fetchAll();
                         <tr>
                             <td>#<?= $apt['id'] ?></td>
                             <td><?= htmlspecialchars($apt['client_name']) ?><br><small style="color:var(--gray)"><?= htmlspecialchars($apt['client_email']) ?></small></td>
+                            <td>
+                                <div style="white-space: nowrap;"><small>📞 <?= htmlspecialchars($apt['phone'] ?? 'N/A') ?></small></div>
+                                <div><small>📍 <?= htmlspecialchars($apt['location'] ?? 'N/A') ?></small></div>
+                            </td>
                             <td><?= htmlspecialchars($apt['service_type']) ?></td>
                             <td><?= date('M j, Y g:i A', strtotime($apt['appointment_date'])) ?></td>
                             <td>
@@ -104,7 +109,7 @@ $appointments = $stmt->fetchAll();
                         </tr>
                         <?php endforeach; ?>
                         <?php if (empty($appointments)): ?>
-                        <tr><td colspan="6" style="text-align: center; color: var(--gray);">No appointments found.</td></tr>
+                        <tr><td colspan="7" style="text-align: center; color: var(--gray);">No appointments found.</td></tr>
                         <?php endif; ?>
                     </tbody>
                 </table>

@@ -92,11 +92,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <form method="POST" action="">
       <div class="form-group">
         <label for="name">Full Name</label>
-        <input type="text" id="name" name="name" required>
+        <input type="text" id="name" name="name" required value="<?= htmlspecialchars($name ?? '', ENT_QUOTES, 'UTF-8') ?>">
       </div>
       <div class="form-group">
         <label for="email">Email Address</label>
-        <input type="email" id="email" name="email" required>
+        <input type="email" id="email" name="email" required value="<?= htmlspecialchars($email ?? '', ENT_QUOTES, 'UTF-8') ?>">
       </div>
       <div class="form-group">
         <label for="password">Password</label>

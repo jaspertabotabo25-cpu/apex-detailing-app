@@ -34,7 +34,7 @@ require_login();
           <a href="admin/index.php" style="color:var(--navy);font-weight:bold;">Admin Dashboard</a>
         <?php endif; ?>
         <a href="logout.php" class="btn" style="border: 1px solid var(--border); padding: 10px 20px;">Logout</a>
-        <a href="#book" class="btn btn-navy">Book Now</a>
+        <a href="#book" class="btn btn-navy open-book-modal">Book Now</a>
       </nav>
       <button class="nav-toggle" id="navToggle" aria-label="Toggle menu">
         <span></span><span></span><span></span>
@@ -51,7 +51,7 @@ require_login();
       <div class="hero-copy">
         <h1>PREMIUM DETAILING,<br>DELIVERED TO YOU.</h1>
         <p>Seamlessly blending premium detailing with practical efficiency in home-service vehicle cleaning.</p>
-        <a href="#services" class="btn btn-gray">View Packages</a>
+        <a href="#services" class="btn btn-gray" id="viewPackagesBtn">View Packages</a>
       </div>
       <div class="hero-visual">
         <img src="assets/Car-hero.png" alt="Detailed BMW front view">
@@ -79,7 +79,7 @@ require_login();
       <div class="eyebrow-underline"></div>
 
       <div class="services-grid">
-        <div class="service-card">
+        <div class="service-card book-service-trigger" data-service="Standard Wash">
           <div class="thumb"><img src="assets/service-standard-wash.jpg" alt="Standard Wash"></div>
           <div class="body">
             <h3>Standard Wash</h3>
@@ -88,7 +88,7 @@ require_login();
           </div>
         </div>
 
-        <div class="service-card featured">
+        <div class="service-card featured book-service-trigger" data-service="Custom Detail">
           <div class="thumb"><img src="assets/service-custom-detail.jpg" alt="Custom Detail"></div>
           <div class="body">
             <h3>Custom Detail</h3>
@@ -97,7 +97,7 @@ require_login();
           </div>
         </div>
 
-        <div class="service-card">
+        <div class="service-card book-service-trigger" data-service="Moto Custom & Detail">
           <div class="thumb"><img src="assets/service-moto-detail.jpg" alt="Moto Custom & Detail"></div>
           <div class="body">
             <h3>Moto Custom &amp; Detail</h3>
@@ -114,18 +114,18 @@ require_login();
     <div class="wrap">
       <h2 class="section-heading">HOW IT WORKS</h2>
 
-      <div class="steps">
-        <div class="step">
+      <div class="steps" id="howItWorksSteps">
+        <div class="step fade-in-step">
           <div class="step-circle">1</div>
           <div class="step-title">Book Online</div>
           <p>Schedule your detail online. We service home garages from Dumaguete City to Ronda.</p>
         </div>
-        <div class="step">
+        <div class="step fade-in-step">
           <div class="step-circle">2</div>
           <div class="step-title">We Arrive</div>
           <p>Our team arrives fully equipped to perform the work right at your location.</p>
         </div>
-        <div class="step">
+        <div class="step fade-in-step">
           <div class="step-circle">3</div>
           <div class="step-title">Flawless Finish</div>
           <p>Review the final aesthetic and enjoy your completely refreshed, custom ride.</p>
@@ -142,27 +142,27 @@ require_login();
 
       <div class="work-grid">
         <div class="work-card tall-card">
-          <img src="assets/work-premium-detailing.jpg" alt="Premium Detailing">
+          <img src="assets/work-premium-detailing.jpg" alt="Premium Detailing" class="lightbox-trigger">
           <div class="work-overlay">
             <div class="work-caption">Premium Detailing</div>
           </div>
         </div>
         <div class="work-right">
           <div class="work-card wide-card">
-            <img src="assets/work-full-body-wash.jpg" alt="Full Body Wash">
+            <img src="assets/work-full-body-wash.jpg" alt="Full Body Wash" class="lightbox-trigger">
             <div class="work-overlay">
               <div class="work-caption">Full Body Wash</div>
             </div>
           </div>
           <div class="work-pair">
             <div class="work-card small-card">
-              <img src="assets/work-custom-rim.jpg" alt="Custom Rim accent">
+              <img src="assets/work-custom-rim.jpg" alt="Custom Rim accent" class="lightbox-trigger">
               <div class="work-overlay">
                 <div class="work-caption">Custom Rim accent</div>
               </div>
             </div>
             <div class="work-card small-card">
-              <img src="assets/work-interior-detailing.jpg" alt="Interior Detailing">
+              <img src="assets/work-interior-detailing.jpg" alt="Interior Detailing" class="lightbox-trigger">
               <div class="work-overlay">
                 <div class="work-caption">Interior Detailing</div>
               </div>
@@ -179,22 +179,25 @@ require_login();
     <div class="wrap" style="position:relative;z-index:2;">
       <h2 class="section-heading">CLIENT REVIEWS</h2>
 
-      <div class="reviews-grid">
-        <div class="review-card">
-          <div class="stars">★★★★★</div>
-          <p class="quote">"Absolutely flawless execution. They handled my custom wheels with perfect precision."</p>
-          <div class="author">-Rogen S.</div>
-        </div>
-        <div class="review-card">
-          <div class="stars">★★★★★</div>
-          <p class="quote">"The convenience of having premium detailing done right in my own driveway is unmatched."</p>
-          <div class="author">- Ian Rey F.</div>
-        </div>
-        <div class="review-card">
-          <div class="stars">★★★★★</div>
-          <p class="quote">"Incredible attention to detail. They respected the specific aesthetic I wanted for my
-            motorcycle build."</p>
-          <div class="author">- John Paul P.</div>
+      <div class="reviews-carousel" id="reviewsCarousel">
+        <div class="reviews-grid carousel-track">
+          <div class="review-card">
+            <div class="stars">★★★★★</div>
+            <p class="quote">"Absolutely flawless execution. They handled my custom wheels with perfect precision."</p>
+            <div class="author">-Rogen S.</div>
+          </div>
+          <div class="review-card">
+            <div class="stars">★★★★★</div>
+            <p class="quote">"The convenience of having premium detailing done right in my own driveway is unmatched."</p>
+            <div class="author">- Ian Rey F.</div>
+          </div>
+          <div class="review-card">
+            <div class="stars">★★★★★</div>
+            <p class="quote">"Incredible attention to detail. They respected the specific aesthetic I wanted for my
+              motorcycle build."</p>
+            <div class="author">- John Paul P.</div>
+          </div>
+          <!-- Cloned items for seamless carousel will be appended via JS -->
         </div>
       </div>
     </div>
@@ -212,8 +215,10 @@ require_login();
             <span class="icon">+</span>
           </button>
           <div class="faq-answer">
-            <p>No need, our team arrives fully equipped with our own water supply and power source, so we can complete
-              the full service right in your driveway or garage.</p>
+            <div class="faq-answer-inner">
+              <p>No need, our team arrives fully equipped with our own water supply and power source, so we can complete
+                the full service right in your driveway or garage.</p>
+            </div>
           </div>
         </div>
 
@@ -223,8 +228,10 @@ require_login();
             <span class="icon">+</span>
           </button>
           <div class="faq-answer">
-            <p>A Complete Custom Detail typically takes between 3 to 5 hours, depending on your vehicle's size and
-              condition, to ensure every inch meets our flawless standard.</p>
+            <div class="faq-answer-inner">
+              <p>A Complete Custom Detail typically takes between 3 to 5 hours, depending on your vehicle's size and
+                condition, to ensure every inch meets our flawless standard.</p>
+            </div>
           </div>
         </div>
 
@@ -234,8 +241,10 @@ require_login();
             <span class="icon">+</span>
           </button>
           <div class="faq-answer">
-            <p>Yes, we currently extend our home-service coverage to Ronda, Cebu and surrounding regions. Get in touch
-              to confirm availability in your area.</p>
+            <div class="faq-answer-inner">
+              <p>Yes, we currently extend our home-service coverage to Ronda, Cebu and surrounding regions. Get in touch
+                to confirm availability in your area.</p>
+            </div>
           </div>
         </div>
 
@@ -245,8 +254,10 @@ require_login();
             <span class="icon">+</span>
           </button>
           <div class="faq-answer">
-            <p>Standard rim cleaning is included in every package. Specialized custom rim accent polishing is available
-              as part of our Custom Detail and Moto Custom & Detail services.</p>
+            <div class="faq-answer-inner">
+              <p>Standard rim cleaning is included in every package. Specialized custom rim accent polishing is available
+                as part of our Custom Detail and Moto Custom & Detail services.</p>
+            </div>
           </div>
         </div>
       </div>
@@ -258,7 +269,7 @@ require_login();
     <div class="wrap">
       <h2>READY TO ELEVATE YOUR RIDE?</h2>
       <p>Book your home-service appointment today.</p>
-      <a href="#contact" class="btn btn-navy">Schedule A Wash</a>
+      <a href="#contact" class="btn btn-navy open-book-modal">Schedule A Wash</a>
     </div>
   </section>
 
@@ -301,6 +312,57 @@ require_login();
       </div>
     </div>
   </footer>
+
+  <!-- ============ MODALS & OVERLAYS ============ -->
+  <dialog id="bookingModal" class="modal">
+    <div class="modal-content">
+      <button class="modal-close" id="closeModalBtn" aria-label="Close modal">&times;</button>
+      <h2>Book Your Service</h2>
+      <p id="bookingFormDesc">Fill out the details below and we'll confirm your appointment.</p>
+      
+      <div id="bookingSuccessMessage" style="display: none; text-align: center; padding: 30px 10px;">
+        <h3 style="color: #155724; margin-bottom: 15px; font-family: 'Poppins', sans-serif;">Appointment Requested!</h3>
+        <p style="margin-bottom: 25px;">Your appointment has been successfully requested. We will contact you shortly to confirm the details.</p>
+        <button type="button" class="btn btn-navy" id="successCloseBtn">Close</button>
+      </div>
+
+      <form id="bookingForm" class="booking-form">
+        <div class="form-group">
+          <label for="b_name">Full Name</label>
+          <input type="text" id="b_name" name="b_name" required>
+        </div>
+        <div class="form-group">
+          <label for="b_phone">Phone Number</label>
+          <input type="tel" id="b_phone" name="b_phone" required>
+        </div>
+        <div class="form-group">
+          <label for="b_service">Select Service</label>
+          <select id="b_service" name="b_service" required>
+            <option value="">Choose a service...</option>
+            <option value="Standard Wash">Standard Wash</option>
+            <option value="Custom Detail">Custom Detail</option>
+            <option value="Moto Custom & Detail">Moto Custom & Detail</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="b_date">Preferred Date</label>
+          <input type="date" id="b_date" name="b_date" required>
+        </div>
+        <div class="form-group">
+          <label for="b_location">Service Location (Address)</label>
+          <input type="text" id="b_location" name="b_location" placeholder="e.g. 123 Main St, Dumaguete City" required>
+        </div>
+        <button type="submit" class="btn btn-navy w-100" id="submitBookingBtn">Confirm Booking</button>
+      </form>
+    </div>
+  </dialog>
+
+  <div id="lightboxOverlay" class="lightbox-overlay">
+    <button class="lightbox-close" id="closeLightboxBtn" aria-label="Close lightbox">&times;</button>
+    <div class="lightbox-content">
+      <img src="" alt="" id="lightboxImg">
+    </div>
+  </div>
 
   <script src="script.js"></script>
 </body>
