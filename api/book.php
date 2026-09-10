@@ -44,6 +44,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $location
         ]);
         
+        // Update user profile if phone or address is missing
+        $stmtUpdate = $pdo->prepare("
+            UPDATE users 
+            SET phone = COALESCE(NULLIF(phone, ''), ?), 
+                address = COALESCE(NULLIF(address, ''), ?) 
+            WHERE id = ?
+        ");
+        $stmtUpdate->execute([$phone, $location, $userId]);
+        
+        // Update session so it autofills next time
+        if (empty($_SESSION['phone'])) $_SESSION['phone'] = $phone;
+        if (empty($_SESSION['address'])) $_SESSION['address'] = $location;
+
         echo json_encode(['success' => true]);
         
     } catch (\PDOException $e) {

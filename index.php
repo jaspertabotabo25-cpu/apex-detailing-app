@@ -1,6 +1,28 @@
 <?php
 require_once 'config/auth.php';
 require_login();
+
+// Fetch up to 4 recent portfolio items for the gallery
+$stmtPortfolio = $pdo->query("SELECT * FROM portfolio ORDER BY created_at DESC LIMIT 4");
+$portfolioItems = $stmtPortfolio->fetchAll();
+
+// Fetch active services for the booking form
+$stmtServices = $pdo->query("SELECT * FROM services WHERE is_active = 1 ORDER BY name ASC");
+$activeServices = $stmtServices->fetchAll();
+
+// Fallback images in case the DB doesn't have 4 yet
+$defaultImages = [
+    ['image_path' => 'assets/work-premium-detailing.jpg', 'description' => 'Premium Detailing'],
+    ['image_path' => 'assets/work-full-body-wash.jpg', 'description' => 'Full Body Wash'],
+    ['image_path' => 'assets/work-custom-rim.jpg', 'description' => 'Custom Rim accent'],
+    ['image_path' => 'assets/work-interior-detailing.jpg', 'description' => 'Interior Detailing'],
+];
+
+for ($i = 0; $i < 4; $i++) {
+    if (!isset($portfolioItems[$i])) {
+        $portfolioItems[$i] = $defaultImages[$i];
+    }
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -32,6 +54,8 @@ require_login();
         <a href="#contact">Contact</a>
         <?php if (is_admin()): ?>
           <a href="admin/index.php" style="color:var(--navy);font-weight:bold;">Admin Dashboard</a>
+        <?php else: ?>
+          <a href="#" class="open-my-bookings-modal" style="color:var(--navy);font-weight:bold;">My Bookings</a>
         <?php endif; ?>
         <a href="logout.php" class="btn" style="border: 1px solid var(--border); padding: 10px 20px;">Logout</a>
         <a href="#book" class="btn btn-navy open-book-modal">Book Now</a>
@@ -75,11 +99,11 @@ require_login();
   <!-- ============ SERVICES ============ -->
   <section class="services" id="services">
     <div class="wrap">
-      <h2 class="section-heading">OUR SERVICES</h2>
+      <h2 class="section-heading">FEATURED SERVICES</h2>
       <div class="eyebrow-underline"></div>
 
       <div class="services-grid">
-        <div class="service-card book-service-trigger" data-service="Standard Wash">
+        <div class="service-card book-service-trigger" id="card-standard-wash" data-service="Standard Wash">
           <div class="thumb"><img src="assets/service-standard-wash.jpg" alt="Standard Wash"></div>
           <div class="body">
             <h3>Standard Wash</h3>
@@ -88,7 +112,7 @@ require_login();
           </div>
         </div>
 
-        <div class="service-card featured book-service-trigger" data-service="Custom Detail">
+        <div class="service-card featured book-service-trigger" id="card-custom-detail" data-service="Custom Detail">
           <div class="thumb"><img src="assets/service-custom-detail.jpg" alt="Custom Detail"></div>
           <div class="body">
             <h3>Custom Detail</h3>
@@ -97,7 +121,7 @@ require_login();
           </div>
         </div>
 
-        <div class="service-card book-service-trigger" data-service="Moto Custom & Detail">
+        <div class="service-card book-service-trigger" id="card-moto-detail" data-service="Moto Custom & Detail">
           <div class="thumb"><img src="assets/service-moto-detail.jpg" alt="Moto Custom & Detail"></div>
           <div class="body">
             <h3>Moto Custom &amp; Detail</h3>
@@ -105,6 +129,10 @@ require_login();
               accent preservation.</p>
           </div>
         </div>
+      </div>
+      
+      <div style="text-align: center;">
+        <button class="btn btn-outline view-all-services-btn" id="openAllServicesBtn">View All Services</button>
       </div>
     </div>
   </section>
@@ -142,29 +170,29 @@ require_login();
 
       <div class="work-grid">
         <div class="work-card tall-card">
-          <img src="assets/work-premium-detailing.jpg" alt="Premium Detailing" class="lightbox-trigger">
+          <img src="<?= htmlspecialchars($portfolioItems[0]['image_path']) ?>" alt="<?= htmlspecialchars($portfolioItems[0]['description']) ?>" class="lightbox-trigger">
           <div class="work-overlay">
-            <div class="work-caption">Premium Detailing</div>
+            <div class="work-caption"><?= htmlspecialchars($portfolioItems[0]['description']) ?></div>
           </div>
         </div>
         <div class="work-right">
           <div class="work-card wide-card">
-            <img src="assets/work-full-body-wash.jpg" alt="Full Body Wash" class="lightbox-trigger">
+            <img src="<?= htmlspecialchars($portfolioItems[1]['image_path']) ?>" alt="<?= htmlspecialchars($portfolioItems[1]['description']) ?>" class="lightbox-trigger">
             <div class="work-overlay">
-              <div class="work-caption">Full Body Wash</div>
+              <div class="work-caption"><?= htmlspecialchars($portfolioItems[1]['description']) ?></div>
             </div>
           </div>
           <div class="work-pair">
             <div class="work-card small-card">
-              <img src="assets/work-custom-rim.jpg" alt="Custom Rim accent" class="lightbox-trigger">
+              <img src="<?= htmlspecialchars($portfolioItems[2]['image_path']) ?>" alt="<?= htmlspecialchars($portfolioItems[2]['description']) ?>" class="lightbox-trigger">
               <div class="work-overlay">
-                <div class="work-caption">Custom Rim accent</div>
+                <div class="work-caption"><?= htmlspecialchars($portfolioItems[2]['description']) ?></div>
               </div>
             </div>
             <div class="work-card small-card">
-              <img src="assets/work-interior-detailing.jpg" alt="Interior Detailing" class="lightbox-trigger">
+              <img src="<?= htmlspecialchars($portfolioItems[3]['image_path']) ?>" alt="<?= htmlspecialchars($portfolioItems[3]['description']) ?>" class="lightbox-trigger">
               <div class="work-overlay">
-                <div class="work-caption">Interior Detailing</div>
+                <div class="work-caption"><?= htmlspecialchars($portfolioItems[3]['description']) ?></div>
               </div>
             </div>
           </div>
@@ -179,8 +207,8 @@ require_login();
     <div class="wrap" style="position:relative;z-index:2;">
       <h2 class="section-heading">CLIENT REVIEWS</h2>
 
-      <div class="reviews-carousel" id="reviewsCarousel">
-        <div class="reviews-grid carousel-track">
+      <div class="reviews-container">
+        <div class="reviews-grid">
           <div class="review-card">
             <div class="stars">★★★★★</div>
             <p class="quote">"Absolutely flawless execution. They handled my custom wheels with perfect precision."</p>
@@ -197,7 +225,6 @@ require_login();
               motorcycle build."</p>
             <div class="author">- John Paul P.</div>
           </div>
-          <!-- Cloned items for seamless carousel will be appended via JS -->
         </div>
       </div>
     </div>
@@ -314,6 +341,26 @@ require_login();
   </footer>
 
   <!-- ============ MODALS & OVERLAYS ============ -->
+  
+  <!-- All Services Modal -->
+  <dialog id="allServicesModal" class="modal">
+    <div class="modal-content">
+      <button class="modal-close" id="closeAllServicesBtn" aria-label="Close modal">&times;</button>
+      <h2>All Services</h2>
+      <p>Browse our complete list of detailing packages.</p>
+      
+      <div class="all-services-list">
+        <?php foreach ($activeServices as $srv): ?>
+        <div class="all-services-item">
+            <span class="all-services-name"><?= htmlspecialchars($srv['name']) ?></span>
+            <button class="btn btn-navy btn-sm book-specific-service" data-service="<?= htmlspecialchars($srv['name']) ?>" style="padding: 8px 16px; font-size: 0.8rem;">Book This</button>
+        </div>
+        <?php endforeach; ?>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- Booking Modal -->
   <dialog id="bookingModal" class="modal">
     <div class="modal-content">
       <button class="modal-close" id="closeModalBtn" aria-label="Close modal">&times;</button>
@@ -329,28 +376,28 @@ require_login();
       <form id="bookingForm" class="booking-form">
         <div class="form-group">
           <label for="b_name">Full Name</label>
-          <input type="text" id="b_name" name="b_name" required>
+          <input type="text" id="b_name" name="b_name" value="<?= htmlspecialchars($_SESSION['name'] ?? '') ?>" required>
         </div>
         <div class="form-group">
           <label for="b_phone">Phone Number</label>
-          <input type="tel" id="b_phone" name="b_phone" required>
+          <input type="tel" id="b_phone" name="b_phone" value="<?= htmlspecialchars($_SESSION['phone'] ?? '') ?>" required>
         </div>
         <div class="form-group">
           <label for="b_service">Select Service</label>
           <select id="b_service" name="b_service" required>
             <option value="">Choose a service...</option>
-            <option value="Standard Wash">Standard Wash</option>
-            <option value="Custom Detail">Custom Detail</option>
-            <option value="Moto Custom & Detail">Moto Custom & Detail</option>
+            <?php foreach ($activeServices as $srv): ?>
+                <option value="<?= htmlspecialchars($srv['name']) ?>"><?= htmlspecialchars($srv['name']) ?></option>
+            <?php endforeach; ?>
           </select>
         </div>
         <div class="form-group">
-          <label for="b_date">Preferred Date</label>
-          <input type="date" id="b_date" name="b_date" required>
+          <label for="b_date">Preferred Date & Time</label>
+          <input type="datetime-local" id="b_date" name="b_date" required>
         </div>
         <div class="form-group">
           <label for="b_location">Service Location (Address)</label>
-          <input type="text" id="b_location" name="b_location" placeholder="e.g. 123 Main St, Dumaguete City" required>
+          <input type="text" id="b_location" name="b_location" placeholder="e.g. 123 Main St, Dumaguete City" value="<?= htmlspecialchars($_SESSION['address'] ?? '') ?>" required>
         </div>
         <button type="submit" class="btn btn-navy w-100" id="submitBookingBtn">Confirm Booking</button>
       </form>
@@ -363,6 +410,42 @@ require_login();
       <img src="" alt="" id="lightboxImg">
     </div>
   </div>
+
+  <dialog id="myBookingsModal" class="modal">
+    <div class="modal-content">
+      <button class="modal-close" id="closeMyBookingsBtn" aria-label="Close modal">&times;</button>
+      <h2>My Bookings</h2>
+      <p>View and manage your appointments below.</p>
+      
+      <div id="myBookingsContainer" style="margin-top: 20px;">
+        <?php
+          if (!is_admin()) {
+              $stmt = $pdo->prepare("SELECT * FROM appointments WHERE user_id = ? ORDER BY appointment_date DESC");
+              $stmt->execute([$_SESSION['user_id']]);
+              $appointments = $stmt->fetchAll();
+              if (count($appointments) > 0) {
+                  echo '<div class="bookings-list">';
+                  foreach ($appointments as $apt) {
+                      $statusClass = 'status-' . strtolower($apt['status']);
+                      $dateFormatted = date('M j, Y, g:i A', strtotime($apt['appointment_date']));
+                      echo '<div class="booking-card" id="booking-'.$apt['id'].'">';
+                      echo '<h4>' . htmlspecialchars($apt['service_type']) . '</h4>';
+                      echo '<p style="margin-bottom:4px; font-size: 0.9rem;"><strong>Date:</strong> ' . $dateFormatted . '</p>';
+                      echo '<p style="margin-bottom:8px; font-size: 0.9rem;"><strong>Status:</strong> <span class="status-badge '.$statusClass.'">' . ucfirst(htmlspecialchars($apt['status'])) . '</span></p>';
+                      if ($apt['status'] === 'pending') {
+                          echo '<button class="btn btn-gray cancel-booking-btn" data-id="'.$apt['id'].'" style="padding: 8px 16px; margin-top: 6px; font-size: 0.75rem;">Cancel Booking</button>';
+                      }
+                      echo '</div>';
+                  }
+                  echo '</div>';
+              } else {
+                  echo '<p style="text-align:center; padding: 20px 0; color: var(--gray);">You have no appointments yet.</p>';
+              }
+          }
+        ?>
+      </div>
+    </div>
+  </dialog>
 
   <script src="script.js"></script>
 </body>

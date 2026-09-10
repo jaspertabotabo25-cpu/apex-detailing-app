@@ -40,6 +40,7 @@ let openModal = (serviceName = '') => {
     if (serviceName && serviceSelect) {
         serviceSelect.value = serviceName;
     }
+    document.body.classList.add('modal-open');
     bookingModal.showModal();
     // Use setTimeout to allow CSS transition after showModal
     setTimeout(() => {
@@ -51,6 +52,7 @@ const closeModal = () => {
     bookingModal.classList.remove('animating');
     setTimeout(() => {
         bookingModal.close();
+        document.body.classList.remove('modal-open');
     }, 300); // match transition duration
 };
 
@@ -177,14 +179,7 @@ if(lightboxOverlay) lightboxOverlay.addEventListener('click', (e) => {
     if (e.target === lightboxOverlay) closeLightbox();
 });
 
-// 6. Carousel Logic
-const track = document.querySelector('.carousel-track');
-if (track) {
-    // Clone items to make it seamless
-    const items = track.innerHTML;
-    track.innerHTML += items; // Double the content
-    track.classList.add('scrolling');
-}
+// Carousel Logic removed (converted to static grid)
 
 // 7. FAQ logic with smooth animation
 document.querySelectorAll('.faq-item .faq-question').forEach(button => {
@@ -201,5 +196,113 @@ document.querySelectorAll('.faq-item .faq-question').forEach(button => {
         if (!isActive) {
             currentItem.classList.add('active');
         }
+    });
+});
+
+// 8. My Bookings Modal
+const myBookingsModal = document.getElementById('myBookingsModal');
+const closeMyBookingsBtn = document.getElementById('closeMyBookingsBtn');
+
+document.querySelectorAll('.open-my-bookings-modal').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        document.body.classList.add('modal-open');
+        myBookingsModal.showModal();
+        setTimeout(() => {
+            myBookingsModal.classList.add('animating');
+        }, 10);
+    });
+});
+
+const closeMyBookingsModal = () => {
+    myBookingsModal.classList.remove('animating');
+    setTimeout(() => {
+        myBookingsModal.close();
+        document.body.classList.remove('modal-open');
+    }, 300);
+};
+
+if (closeMyBookingsBtn) closeMyBookingsBtn.addEventListener('click', closeMyBookingsModal);
+if (myBookingsModal) myBookingsModal.addEventListener('click', (e) => {
+    if (e.target === myBookingsModal) closeMyBookingsModal();
+});
+
+// Cancel Booking logic
+document.querySelectorAll('.cancel-booking-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+        if (!confirm('Are you sure you want to cancel this booking?')) return;
+        
+        const bookingId = this.getAttribute('data-id');
+        this.disabled = true;
+        this.textContent = 'Canceling...';
+        
+        const formData = new FormData();
+        formData.append('appointment_id', bookingId);
+        
+        fetch('api/cancel_booking.php', {
+            method: 'POST',
+            body: formData
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                const card = document.getElementById('booking-' + bookingId);
+                const badge = card.querySelector('.status-badge');
+                badge.className = 'status-badge status-cancelled';
+                badge.textContent = 'Cancelled';
+                this.remove(); // Remove cancel button
+            } else {
+                alert(data.error || 'Failed to cancel booking.');
+                this.disabled = false;
+                this.textContent = 'Cancel Booking';
+            }
+        })
+        .catch(err => {
+            console.error(err);
+            alert('A network error occurred.');
+            this.disabled = false;
+            this.textContent = 'Cancel Booking';
+        });
+    });
+});
+
+// 9. All Services Modal
+const allServicesModal = document.getElementById('allServicesModal');
+const openAllServicesBtn = document.getElementById('openAllServicesBtn');
+const closeAllServicesBtn = document.getElementById('closeAllServicesBtn');
+
+if (openAllServicesBtn) {
+    openAllServicesBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        document.body.classList.add('modal-open');
+        allServicesModal.showModal();
+        setTimeout(() => {
+            allServicesModal.classList.add('animating');
+        }, 10);
+    });
+}
+
+const closeAllServicesModal = () => {
+    if (!allServicesModal) return;
+    allServicesModal.classList.remove('animating');
+    setTimeout(() => {
+        allServicesModal.close();
+        document.body.classList.remove('modal-open');
+    }, 300);
+};
+
+if (closeAllServicesBtn) closeAllServicesBtn.addEventListener('click', closeAllServicesModal);
+if (allServicesModal) allServicesModal.addEventListener('click', (e) => {
+    if (e.target === allServicesModal) closeAllServicesModal();
+});
+
+// Book a specific service from the All Services modal
+document.querySelectorAll('.book-specific-service').forEach(btn => {
+    btn.addEventListener('click', () => {
+        const service = btn.getAttribute('data-service');
+        closeAllServicesModal();
+        setTimeout(() => {
+            openModal(service);
+        }, 300); // Wait for All Services modal to close before opening booking modal
     });
 });

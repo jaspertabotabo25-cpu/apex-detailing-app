@@ -63,6 +63,8 @@ function login_user($user) {
     $_SESSION['name'] = $user['name'];
     $_SESSION['email'] = $user['email'];
     $_SESSION['role'] = $user['role'];
+    $_SESSION['phone'] = $user['phone'] ?? '';
+    $_SESSION['address'] = $user['address'] ?? '';
 }
 
 /**

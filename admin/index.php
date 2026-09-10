@@ -28,6 +28,14 @@ $stmtUpcoming = $pdo->query("SELECT a.id, u.name as client_name, a.service_type,
                              ORDER BY a.appointment_date ASC 
                              LIMIT 5");
 $upcomingAppointments = $stmtUpcoming->fetchAll();
+
+// Analytics: Service Popularity
+$stmtAnalytics = $pdo->query("SELECT service_type, COUNT(*) as count FROM appointments GROUP BY service_type ORDER BY count DESC");
+$analyticsData = $stmtAnalytics->fetchAll();
+$maxCount = 0;
+foreach ($analyticsData as $data) {
+    if ($data['count'] > $maxCount) $maxCount = $data['count'];
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -79,6 +87,7 @@ $upcomingAppointments = $stmtUpcoming->fetchAll();
             <a href="index.php" class="active">Dashboard Home</a>
             <a href="schedule.php">Dispatch Schedule</a>
             <a href="appointments.php">Appointments</a>
+            <a href="services.php">Manage Services</a>
             <a href="portfolio_upload.php">Portfolio Uploader</a>
             <a href="clients.php">Client Registry</a>
             <a href="inventory.php">Inventory</a>
@@ -155,14 +164,45 @@ $upcomingAppointments = $stmtUpcoming->fetchAll();
                     <?php endif; ?>
                 </div>
 
-                <!-- Quick Actions -->
-                <div class="card" style="margin-bottom: 0;">
-                    <h3 style="margin-top: 0; margin-bottom: 20px; color: #0f172a;">Quick Actions</h3>
-                    <div class="action-buttons">
-                        <a href="appointments.php" class="btn-action">+ New Appointment</a>
-                        <a href="clients.php" class="btn-action btn-outline">+ Add Client</a>
-                        <a href="inventory.php" class="btn-action btn-outline">Update Inventory</a>
-                        <a href="portfolio_upload.php" class="btn-action btn-outline">Upload to Portfolio</a>
+                <!-- Right Column -->
+                <div>
+                    <!-- Service Analytics (CSS Chart) -->
+                    <div class="card" style="margin-bottom: 20px;">
+                        <h3 style="margin-top: 0; margin-bottom: 20px; color: #0f172a;">Service Popularity</h3>
+                        <?php if (empty($analyticsData)): ?>
+                            <p style="color: #64748b;">No data available yet.</p>
+                        <?php else: ?>
+                            <div class="chart-container">
+                                <?php foreach ($analyticsData as $data): ?>
+                                    <?php 
+                                    $percentage = $maxCount > 0 ? ($data['count'] / $maxCount) * 100 : 0; 
+                                    // Make sure even small values have a tiny sliver of width
+                                    if ($percentage > 0 && $percentage < 2) $percentage = 2;
+                                    ?>
+                                    <div class="chart-row">
+                                        <div class="chart-label" title="<?= htmlspecialchars($data['service_type']) ?>">
+                                            <?= htmlspecialchars($data['service_type']) ?>
+                                        </div>
+                                        <div class="chart-bar-bg">
+                                            <div class="chart-bar-fill" style="width: <?= $percentage ?>%;"></div>
+                                        </div>
+                                        <div class="chart-value"><?= $data['count'] ?></div>
+                                    </div>
+                                <?php endforeach; ?>
+                            </div>
+                        <?php endif; ?>
+                    </div>
+
+                    <!-- Quick Actions -->
+                    <div class="card" style="margin-bottom: 0;">
+                        <h3 style="margin-top: 0; margin-bottom: 20px; color: #0f172a;">Quick Actions</h3>
+                        <div class="action-buttons">
+                            <a href="appointments.php" class="btn-action">+ New Appointment</a>
+                            <a href="services.php" class="btn-action btn-outline">+ Manage Services</a>
+                            <a href="clients.php" class="btn-action btn-outline">+ Add Client</a>
+                            <a href="inventory.php" class="btn-action btn-outline">Update Inventory</a>
+                            <a href="portfolio_upload.php" class="btn-action btn-outline">Upload to Portfolio</a>
+                        </div>
                     </div>
                 </div>
             </div>

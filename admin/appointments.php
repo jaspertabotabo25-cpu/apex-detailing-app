@@ -2,17 +2,6 @@
 require_once '../config/auth.php';
 require_admin();
 
-// Handle status updates
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['appointment_id'], $_POST['status'])) {
-    $valid_statuses = ['pending', 'approved', 'cancelled'];
-    if (in_array($_POST['status'], $valid_statuses)) {
-        $stmt = $pdo->prepare("UPDATE appointments SET status = ? WHERE id = ?");
-        $stmt->execute([$_POST['status'], (int)$_POST['appointment_id']]);
-        header('Location: appointments.php?msg=updated');
-        exit;
-    }
-}
-
 // Fetch all appointments
 $stmt = $pdo->query("
     SELECT a.*, u.name as client_name, u.email as client_email 
@@ -45,7 +34,13 @@ $appointments = $stmt->fetchAll();
         .status-cancelled { background: #f8d7da; color: #721c24; }
         .action-form { display: inline-flex; gap: 8px; }
         .action-form select { padding: 6px; border: 1px solid var(--border); border-radius: 4px; }
-        .action-form button { padding: 6px 12px; background: var(--navy); color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.8rem; }
+        .action-form select { padding: 6px; border: 1px solid var(--border); border-radius: 4px; }
+        
+        /* Toast Notification */
+        .toast { position: fixed; bottom: 20px; right: 20px; background: #334155; color: white; padding: 12px 24px; border-radius: 6px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); font-size: 0.9rem; font-weight: 500; transform: translateY(100px); opacity: 0; transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55); z-index: 1000; pointer-events: none; }
+        .toast.show { transform: translateY(0); opacity: 1; }
+        .toast.success { border-left: 4px solid #10b981; }
+        .toast.error { border-left: 4px solid #ef4444; }
     </style>
 </head>
 <body>
@@ -61,10 +56,6 @@ $appointments = $stmt->fetchAll();
         </div>
         <div class="content">
             <h1>Manage Appointments</h1>
-            
-            <?php if (isset($_GET['msg']) && $_GET['msg'] === 'updated'): ?>
-                <div style="background: #d4edda; color: #155724; padding: 15px; border-radius: 4px; margin-bottom: 20px;">Appointment status updated successfully.</div>
-            <?php endif; ?>
 
             <div class="card">
                 <table>
@@ -91,20 +82,19 @@ $appointments = $stmt->fetchAll();
                             <td><?= htmlspecialchars($apt['service_type']) ?></td>
                             <td><?= date('M j, Y g:i A', strtotime($apt['appointment_date'])) ?></td>
                             <td>
-                                <span class="status-badge status-<?= $apt['status'] ?>">
+                                <span class="status-badge status-<?= $apt['status'] ?>" id="badge-<?= $apt['id'] ?>">
                                     <?= htmlspecialchars($apt['status']) ?>
                                 </span>
                             </td>
                             <td>
-                                <form method="POST" action="" class="action-form">
-                                    <input type="hidden" name="appointment_id" value="<?= $apt['id'] ?>">
-                                    <select name="status">
+                                <div class="action-form">
+                                    <select class="status-select" data-id="<?= $apt['id'] ?>">
                                         <option value="pending" <?= $apt['status'] === 'pending' ? 'selected' : '' ?>>Pending</option>
                                         <option value="approved" <?= $apt['status'] === 'approved' ? 'selected' : '' ?>>Approve</option>
                                         <option value="cancelled" <?= $apt['status'] === 'cancelled' ? 'selected' : '' ?>>Cancel</option>
                                     </select>
-                                    <button type="submit">Update</button>
-                                </form>
+                                    <span class="loader" id="loader-<?= $apt['id'] ?>" style="display:none; font-size:0.8rem; color:var(--gray);">Saving...</span>
+                                </div>
                             </td>
                         </tr>
                         <?php endforeach; ?>
@@ -116,5 +106,64 @@ $appointments = $stmt->fetchAll();
             </div>
         </div>
     </div>
+    
+    <div id="toast" class="toast"></div>
+
+    <script>
+        document.querySelectorAll('.status-select').forEach(select => {
+            select.addEventListener('change', function() {
+                const appointmentId = this.getAttribute('data-id');
+                const newStatus = this.value;
+                const loader = document.getElementById('loader-' + appointmentId);
+                const badge = document.getElementById('badge-' + appointmentId);
+                
+                // Show saving state
+                this.disabled = true;
+                loader.style.display = 'inline';
+                
+                const formData = new FormData();
+                formData.append('appointment_id', appointmentId);
+                formData.append('status', newStatus);
+                
+                fetch('api/update_status.php', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(res => res.json())
+                .then(data => {
+                    this.disabled = false;
+                    loader.style.display = 'none';
+                    
+                    if (data.success) {
+                        // Update badge
+                        badge.className = 'status-badge status-' + newStatus;
+                        badge.textContent = newStatus;
+                        showToast('Status updated successfully!', 'success');
+                    } else {
+                        showToast(data.error || 'Failed to update status.', 'error');
+                        // Revert selection
+                        this.value = badge.textContent.trim().toLowerCase();
+                    }
+                })
+                .catch(err => {
+                    console.error(err);
+                    this.disabled = false;
+                    loader.style.display = 'none';
+                    this.value = badge.textContent.trim().toLowerCase();
+                    showToast('A network error occurred.', 'error');
+                });
+            });
+        });
+        
+        function showToast(message, type) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = 'toast show ' + type;
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+    </script>
 </body>
 </html>
