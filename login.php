@@ -1,4 +1,5 @@
 <?php
+// login.php
 require_once 'config/auth.php';
 
 if (is_logged_in()) {
@@ -7,24 +8,36 @@ if (is_logged_in()) {
 }
 
 $error = '';
+$email = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $email = trim($_POST['email'] ?? '');
-    $password = $_POST['password'] ?? '';
-
-    if (empty($email) || empty($password)) {
-        $error = 'Please fill in all fields.';
+    // CSRF Validation
+    $csrf_token = $_POST['csrf_token'] ?? '';
+    if (!validate_csrf_token($csrf_token)) {
+        $error = 'Invalid security token. Please try again.';
     } else {
-        $stmt = $pdo->prepare("SELECT * FROM users WHERE email = ?");
-        $stmt->execute([$email]);
-        $user = $stmt->fetch();
+        // Sanitize and validate input
+        $email_input = trim($_POST['email'] ?? '');
+        $email = filter_var($email_input, FILTER_SANITIZE_EMAIL);
+        $password = $_POST['password'] ?? '';
 
-        if ($user && password_verify($password, $user['password_hash'])) {
-            login_user($user);
-            header('Location: index.php');
-            exit;
+        if (empty($email) || empty($password)) {
+            $error = 'Please fill in all fields.';
+        } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            $error = 'Please enter a valid email address.';
         } else {
-            $error = 'Invalid email or password.';
+            // Secure prepared statement
+            $stmt = $pdo->prepare("SELECT * FROM users WHERE email = ?");
+            $stmt->execute([$email]);
+            $user = $stmt->fetch();
+
+            if ($user && password_verify($password, $user['password_hash'])) {
+                login_user($user);
+                header('Location: index.php');
+                exit;
+            } else {
+                $error = 'Invalid email or password.';
+            }
         }
     }
 }
@@ -69,6 +82,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <?php endif; ?>
 
     <form method="POST" action="">
+      <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(generate_csrf_token()) ?>">
       <div class="form-group">
         <label for="email">Email Address</label>
         <input type="email" id="email" name="email" required value="<?= htmlspecialchars($email ?? '', ENT_QUOTES, 'UTF-8') ?>">

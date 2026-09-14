@@ -1,4 +1,5 @@
 <?php
+// register.php
 require_once 'config/auth.php';
 
 if (is_logged_in()) {
@@ -7,44 +8,57 @@ if (is_logged_in()) {
 }
 
 $error = '';
+$name = '';
+$email = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $name = trim($_POST['name'] ?? '');
-    $email = trim($_POST['email'] ?? '');
-    $password = $_POST['password'] ?? '';
-
-    if (empty($name) || empty($email) || empty($password)) {
-        $error = 'Please fill in all fields.';
-    } elseif (strlen($password) < 8) {
-        $error = 'Password must be at least 8 characters long.';
-    } elseif (!preg_match('/[A-Z]/', $password)) {
-        $error = 'Password must contain at least one uppercase letter.';
-    } elseif (!preg_match('/[a-z]/', $password)) {
-        $error = 'Password must contain at least one lowercase letter.';
-    } elseif (!preg_match('/[\W_]/', $password)) {
-        $error = 'Password must contain at least one special character.';
+    // CSRF Validation
+    $csrf_token = $_POST['csrf_token'] ?? '';
+    if (!validate_csrf_token($csrf_token)) {
+        $error = 'Invalid security token. Please try again.';
     } else {
-        // Check if email exists
-        $stmt = $pdo->prepare("SELECT id FROM users WHERE email = ?");
-        $stmt->execute([$email]);
-        if ($stmt->fetch()) {
-            $error = 'Email is already registered.';
+        // Sanitize and validate inputs
+        $name_input = trim($_POST['name'] ?? '');
+        $name = htmlspecialchars($name_input, ENT_QUOTES, 'UTF-8'); // basic sanitization
+        $email_input = trim($_POST['email'] ?? '');
+        $email = filter_var($email_input, FILTER_SANITIZE_EMAIL);
+        $password = $_POST['password'] ?? '';
+
+        if (empty($name) || empty($email) || empty($password)) {
+            $error = 'Please fill in all fields.';
+        } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            $error = 'Please enter a valid email address.';
+        } elseif (strlen($password) < 8) {
+            $error = 'Password must be at least 8 characters long.';
+        } elseif (!preg_match('/[A-Z]/', $password)) {
+            $error = 'Password must contain at least one uppercase letter.';
+        } elseif (!preg_match('/[a-z]/', $password)) {
+            $error = 'Password must contain at least one lowercase letter.';
+        } elseif (!preg_match('/[\W_]/', $password)) {
+            $error = 'Password must contain at least one special character.';
         } else {
-            // Securely hash the password
-            $hash = password_hash($password, PASSWORD_DEFAULT);
-            $stmt = $pdo->prepare("INSERT INTO users (name, email, password_hash) VALUES (?, ?, ?)");
-            if ($stmt->execute([$name, $email, $hash])) {
-                // Log user in automatically
-                $userId = $pdo->lastInsertId();
-                $stmt = $pdo->prepare("SELECT * FROM users WHERE id = ?");
-                $stmt->execute([$userId]);
-                $user = $stmt->fetch();
-                login_user($user);
-                
-                header('Location: index.php');
-                exit;
+            // Check if email exists
+            $stmt = $pdo->prepare("SELECT id FROM users WHERE email = ?");
+            $stmt->execute([$email]);
+            if ($stmt->fetch()) {
+                $error = 'Email is already registered.';
             } else {
-                $error = 'An error occurred during registration.';
+                // Securely hash the password
+                $hash = password_hash($password, PASSWORD_DEFAULT);
+                $stmt = $pdo->prepare("INSERT INTO users (name, email, password_hash) VALUES (?, ?, ?)");
+                if ($stmt->execute([$name, $email, $hash])) {
+                    // Log user in automatically
+                    $userId = $pdo->lastInsertId();
+                    $stmt = $pdo->prepare("SELECT * FROM users WHERE id = ?");
+                    $stmt->execute([$userId]);
+                    $user = $stmt->fetch();
+                    login_user($user);
+                    
+                    header('Location: index.php');
+                    exit;
+                } else {
+                    $error = 'An error occurred during registration.';
+                }
             }
         }
     }
@@ -90,6 +104,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <?php endif; ?>
 
     <form method="POST" action="">
+      <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(generate_csrf_token()) ?>">
       <div class="form-group">
         <label for="name">Full Name</label>
         <input type="text" id="name" name="name" required value="<?= htmlspecialchars($name ?? '', ENT_QUOTES, 'UTF-8') ?>">

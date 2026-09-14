@@ -8,7 +8,32 @@ ini_set('session.cookie_httponly', 1); // Prevent JavaScript from accessing the 
 ini_set('session.use_only_cookies', 1); // Prevent passing session ID via URL
 ini_set('session.cookie_samesite', 'Strict'); // Mitigate CSRF
 
-session_start();
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+/**
+ * Generates a CSRF token and stores it in the session if it doesn't exist.
+ * @return string The CSRF token
+ */
+function generate_csrf_token() {
+    if (empty($_SESSION['csrf_token'])) {
+        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+    }
+    return $_SESSION['csrf_token'];
+}
+
+/**
+ * Validates a given CSRF token against the one stored in the session.
+ * @param string $token
+ * @return bool
+ */
+function validate_csrf_token($token) {
+    if (empty($_SESSION['csrf_token']) || empty($token)) {
+        return false;
+    }
+    return hash_equals($_SESSION['csrf_token'], $token);
+}
 
 /**
  * Check if the user is currently logged in.
@@ -28,7 +53,7 @@ function is_admin() {
 
 /**
  * Middleware: Redirects unauthenticated users to the login page.
- * Place at the top of protected pages (like index.php).
+ * Place at the top of protected pages.
  */
 function require_login() {
     if (!is_logged_in()) {
@@ -44,7 +69,8 @@ function require_login() {
 function require_admin() {
     require_login(); // Must be logged in first
     if (!is_admin()) {
-        header('Location: ../index.php'); // Assuming admin pages are in /admin/
+        // Assume admin pages are in a subdirectory, so redirect up
+        header('Location: ../index.php'); 
         exit;
     }
 }
