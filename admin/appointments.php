@@ -93,8 +93,14 @@ require_once 'includes/admin_header.php';
                 <td>#<?= $apt['id'] ?></td>
                 <td><?= htmlspecialchars($apt['client_name']) ?><br><small style="color:var(--gray)"><?= htmlspecialchars($apt['client_email']) ?></small></td>
                 <td>
-                    <div style="white-space: nowrap;"><small>📞 <?= htmlspecialchars($apt['phone'] ?? 'N/A') ?></small></div>
-                    <div><small>📍 <?= htmlspecialchars($apt['location'] ?? 'N/A') ?></small></div>
+                    <div style="white-space: nowrap; display: flex; align-items: center; gap: 4px; color: var(--gray);">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24"><path d="M0 0h24v24H0z" fill="none" /><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.554 6.24L7.171 2.335c-.39-.45-1.105-.448-1.558.006L2.831 5.128c-.828.829-1.065 2.06-.586 3.047a29.2 29.2 0 0 0 13.561 13.58c.986.479 2.216.242 3.044-.587l2.808-2.813c.455-.455.456-1.174.002-1.564l-3.92-3.365c-.41-.352-1.047-.306-1.458.106l-1.364 1.366a.46.46 0 0 1-.553.088a14.56 14.56 0 0 1-5.36-5.367a.46.46 0 0 1 .088-.554l1.36-1.361c.412-.414.457-1.054.101-1.465" /></svg>
+                        <small style="color: #000;"><?= htmlspecialchars($apt['phone'] ?? 'N/A') ?></small>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 4px; color: var(--gray);">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24"><path d="M0 0h24v24H0z" fill="none" /><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><circle cx="12" cy="10" r="3" /><path d="M12 2a8 8 0 0 0-8 8c0 1.892.402 3.13 1.5 4.5L12 22l6.5-7.5c1.098-1.37 1.5-2.608 1.5-4.5a8 8 0 0 0-8-8" /></g></svg>
+                        <small style="color: #000;"><?= htmlspecialchars($apt['location'] ?? 'N/A') ?></small>
+                    </div>
                 </td>
                 <td><?= htmlspecialchars($apt['service_type']) ?></td>
                 <td><?= date('M j, Y g:i A', strtotime($apt['appointment_date'])) ?></td>
