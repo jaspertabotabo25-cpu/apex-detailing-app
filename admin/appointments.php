@@ -22,13 +22,13 @@ $extraScripts = "
 <script>
     document.querySelectorAll('.status-select').forEach(select => {
         select.addEventListener('change', function() {
-            const appointmentId = this.getAttribute('data-id');
-            const newStatus = this.value;
+            const appointmentId = select.getAttribute('data-id');
+            const newStatus = select.value;
             const loader = document.getElementById('loader-' + appointmentId);
             const badge = document.getElementById('badge-' + appointmentId);
             
             // Show saving state
-            this.disabled = true;
+            select.disabled = true;
             loader.style.display = 'inline';
             
             const formData = new FormData();
@@ -43,7 +43,7 @@ $extraScripts = "
             })
             .then(res => res.json())
             .then(data => {
-                this.disabled = false;
+                select.disabled = false;
                 loader.style.display = 'none';
                 
                 if (data.success) {
@@ -54,14 +54,14 @@ $extraScripts = "
                 } else {
                     showToast(data.error || 'Failed to update status.', 'error');
                     // Revert selection
-                    this.value = badge.textContent.trim().toLowerCase();
+                    select.value = badge.textContent.trim().toLowerCase();
                 }
             })
             .catch(err => {
                 console.error(err);
-                this.disabled = false;
+                select.disabled = false;
                 loader.style.display = 'none';
-                this.value = badge.textContent.trim().toLowerCase();
+                select.value = badge.textContent.trim().toLowerCase();
                 showToast('A network error occurred.', 'error');
             });
         });
