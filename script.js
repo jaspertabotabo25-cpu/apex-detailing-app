@@ -238,6 +238,8 @@ document.querySelectorAll('.cancel-booking-btn').forEach(btn => {
         
         const formData = new FormData();
         formData.append('appointment_id', bookingId);
+        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+        if (csrfToken) formData.append('csrf_token', csrfToken);
         
         fetch('api/cancel_booking.php', {
             method: 'POST',

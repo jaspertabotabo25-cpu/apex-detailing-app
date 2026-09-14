@@ -1,13 +1,14 @@
 <?php
+// index.php
 require_once 'config/auth.php';
-require_login();
 
-// Fetch up to 4 recent portfolio items for the gallery
-$stmtPortfolio = $pdo->query("SELECT * FROM portfolio ORDER BY created_at DESC LIMIT 4");
+// Prepare statements for secure fetching (adhering strictly to best practices)
+$stmtPortfolio = $pdo->prepare("SELECT * FROM portfolio ORDER BY created_at DESC LIMIT 4");
+$stmtPortfolio->execute();
 $portfolioItems = $stmtPortfolio->fetchAll();
 
-// Fetch active services for the booking form
-$stmtServices = $pdo->query("SELECT * FROM services WHERE is_active = 1 ORDER BY name ASC");
+$stmtServices = $pdo->prepare("SELECT * FROM services WHERE is_active = 1 ORDER BY name ASC");
+$stmtServices->execute();
 $activeServices = $stmtServices->fetchAll();
 
 // Fallback images in case the DB doesn't have 4 yet
@@ -23,48 +24,11 @@ for ($i = 0; $i < 4; $i++) {
         $portfolioItems[$i] = $defaultImages[$i];
     }
 }
+
+$pageTitle = 'Apex Custom Detailing | Premium Detailing, Delivered To You';
+$basePath = ''; 
+require_once 'includes/header.php';
 ?>
-<!DOCTYPE html>
-<html lang="en">
-
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Apex Custom Detailing | Premium Detailing, Delivered To You</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link
-    href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700;800&family=Inter:wght@400;500;600&display=swap"
-    rel="stylesheet">
-  <link rel="stylesheet" href="styles.css">
-</head>
-
-<body>
-
-  <!-- ============ HEADER ============ -->
-  <header>
-    <div class="header-inner">
-      <a href="#" class="brand">
-        <img src="assets/svg_brand_logo.svg" alt="Apex Custom Detailing">
-      </a>
-      <nav class="main-nav" id="mainNav">
-        <a href="#home" class="active">Home</a>
-        <a href="#services">Services</a>
-        <a href="#gallery">Gallery</a>
-        <a href="#contact">Contact</a>
-        <?php if (is_admin()): ?>
-          <a href="admin/index.php" style="color:var(--navy);font-weight:bold;">Admin Dashboard</a>
-        <?php else: ?>
-          <a href="#" class="open-my-bookings-modal" style="color:var(--navy);font-weight:bold;">My Bookings</a>
-        <?php endif; ?>
-        <a href="logout.php" class="btn" style="border: 1px solid var(--border); padding: 10px 20px;">Logout</a>
-        <a href="#book" class="btn btn-navy open-book-modal">Book Now</a>
-      </nav>
-      <button class="nav-toggle" id="navToggle" aria-label="Toggle menu">
-        <span></span><span></span><span></span>
-      </button>
-    </div>
-  </header>
 
   <!-- ============ HERO ============ -->
   <section class="hero" id="home">
@@ -300,154 +264,4 @@ for ($i = 0; $i < 4; $i++) {
     </div>
   </section>
 
-  <!-- ============ FOOTER ============ -->
-  <footer id="contact">
-    <div class="wrap">
-      <div class="footer-grid">
-        <div class="footer-brand">
-          <img src="assets/svg_brand_logo.svg" alt="Apex Custom Detailing" class="footer-logo">
-          <p>Sleek. Premium. Efficient.</p>
-        </div>
-        <div>
-          <h4>COMPANY</h4>
-          <ul>
-            <li><a href="#">About Us</a></li>
-            <li><a href="#services">Our Services</a></li>
-            <li><a href="#gallery">Gallery</a></li>
-          </ul>
-        </div>
-        <div>
-          <h4>SERVICE AREAS</h4>
-          <ul>
-            <li><a href="#">Dumaguete City</a></li>
-            <li><a href="#">Ronda, Cebu</a></li>
-            <li><a href="#">Surrounding Regions</a></li>
-          </ul>
-        </div>
-        <div>
-          <h4>CONTACT</h4>
-          <ul>
-            <li><a href="mailto:booking@apexcustomdetail.ph">booking@apexcustomdetail.ph</a></li>
-            <li><a href="tel:+639123456789">+63 912 345 6789</a></li>
-            <li><a href="#">Instagram</a></li>
-            <li><a href="#">Facebook</a></li>
-          </ul>
-        </div>
-      </div>
-      <div class="footer-bottom">
-        © 2026 Apex Custom Detailing. All Rights Reserved.
-      </div>
-    </div>
-  </footer>
-
-  <!-- ============ MODALS & OVERLAYS ============ -->
-  
-  <!-- All Services Modal -->
-  <dialog id="allServicesModal" class="modal">
-    <div class="modal-content">
-      <button class="modal-close" id="closeAllServicesBtn" aria-label="Close modal">&times;</button>
-      <h2>All Services</h2>
-      <p>Browse our complete list of detailing packages.</p>
-      
-      <div class="all-services-list">
-        <?php foreach ($activeServices as $srv): ?>
-        <div class="all-services-item">
-            <span class="all-services-name"><?= htmlspecialchars($srv['name']) ?></span>
-            <button class="btn btn-navy btn-sm book-specific-service" data-service="<?= htmlspecialchars($srv['name']) ?>" style="padding: 8px 16px; font-size: 0.8rem;">Book This</button>
-        </div>
-        <?php endforeach; ?>
-      </div>
-    </div>
-  </dialog>
-
-  <!-- Booking Modal -->
-  <dialog id="bookingModal" class="modal">
-    <div class="modal-content">
-      <button class="modal-close" id="closeModalBtn" aria-label="Close modal">&times;</button>
-      <h2>Book Your Service</h2>
-      <p id="bookingFormDesc">Fill out the details below and we'll confirm your appointment.</p>
-      
-      <div id="bookingSuccessMessage" style="display: none; text-align: center; padding: 30px 10px;">
-        <h3 style="color: #155724; margin-bottom: 15px; font-family: 'Poppins', sans-serif;">Appointment Requested!</h3>
-        <p style="margin-bottom: 25px;">Your appointment has been successfully requested. We will contact you shortly to confirm the details.</p>
-        <button type="button" class="btn btn-navy" id="successCloseBtn">Close</button>
-      </div>
-
-      <form id="bookingForm" class="booking-form">
-        <div class="form-group">
-          <label for="b_name">Full Name</label>
-          <input type="text" id="b_name" name="b_name" value="<?= htmlspecialchars($_SESSION['name'] ?? '') ?>" required>
-        </div>
-        <div class="form-group">
-          <label for="b_phone">Phone Number</label>
-          <input type="tel" id="b_phone" name="b_phone" value="<?= htmlspecialchars($_SESSION['phone'] ?? '') ?>" required>
-        </div>
-        <div class="form-group">
-          <label for="b_service">Select Service</label>
-          <select id="b_service" name="b_service" required>
-            <option value="">Choose a service...</option>
-            <?php foreach ($activeServices as $srv): ?>
-                <option value="<?= htmlspecialchars($srv['name']) ?>"><?= htmlspecialchars($srv['name']) ?></option>
-            <?php endforeach; ?>
-          </select>
-        </div>
-        <div class="form-group">
-          <label for="b_date">Preferred Date & Time</label>
-          <input type="datetime-local" id="b_date" name="b_date" required>
-        </div>
-        <div class="form-group">
-          <label for="b_location">Service Location (Address)</label>
-          <input type="text" id="b_location" name="b_location" placeholder="e.g. 123 Main St, Dumaguete City" value="<?= htmlspecialchars($_SESSION['address'] ?? '') ?>" required>
-        </div>
-        <button type="submit" class="btn btn-navy w-100" id="submitBookingBtn">Confirm Booking</button>
-      </form>
-    </div>
-  </dialog>
-
-  <div id="lightboxOverlay" class="lightbox-overlay">
-    <button class="lightbox-close" id="closeLightboxBtn" aria-label="Close lightbox">&times;</button>
-    <div class="lightbox-content">
-      <img src="" alt="" id="lightboxImg">
-    </div>
-  </div>
-
-  <dialog id="myBookingsModal" class="modal">
-    <div class="modal-content">
-      <button class="modal-close" id="closeMyBookingsBtn" aria-label="Close modal">&times;</button>
-      <h2>My Bookings</h2>
-      <p>View and manage your appointments below.</p>
-      
-      <div id="myBookingsContainer" style="margin-top: 20px;">
-        <?php
-          if (!is_admin()) {
-              $stmt = $pdo->prepare("SELECT * FROM appointments WHERE user_id = ? ORDER BY appointment_date DESC");
-              $stmt->execute([$_SESSION['user_id']]);
-              $appointments = $stmt->fetchAll();
-              if (count($appointments) > 0) {
-                  echo '<div class="bookings-list">';
-                  foreach ($appointments as $apt) {
-                      $statusClass = 'status-' . strtolower($apt['status']);
-                      $dateFormatted = date('M j, Y, g:i A', strtotime($apt['appointment_date']));
-                      echo '<div class="booking-card" id="booking-'.$apt['id'].'">';
-                      echo '<h4>' . htmlspecialchars($apt['service_type']) . '</h4>';
-                      echo '<p style="margin-bottom:4px; font-size: 0.9rem;"><strong>Date:</strong> ' . $dateFormatted . '</p>';
-                      echo '<p style="margin-bottom:8px; font-size: 0.9rem;"><strong>Status:</strong> <span class="status-badge '.$statusClass.'">' . ucfirst(htmlspecialchars($apt['status'])) . '</span></p>';
-                      if ($apt['status'] === 'pending') {
-                          echo '<button class="btn btn-gray cancel-booking-btn" data-id="'.$apt['id'].'" style="padding: 8px 16px; margin-top: 6px; font-size: 0.75rem;">Cancel Booking</button>';
-                      }
-                      echo '</div>';
-                  }
-                  echo '</div>';
-              } else {
-                  echo '<p style="text-align:center; padding: 20px 0; color: var(--gray);">You have no appointments yet.</p>';
-              }
-          }
-        ?>
-      </div>
-    </div>
-  </dialog>
-
-  <script src="script.js"></script>
-</body>
-
-</html>
+<?php require_once 'includes/footer.php'; ?>

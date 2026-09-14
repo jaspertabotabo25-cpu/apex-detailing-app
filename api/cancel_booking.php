@@ -11,6 +11,14 @@ if (!is_logged_in()) {
 header('Content-Type: application/json');
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // CSRF Validation
+    $csrf_token = $_POST['csrf_token'] ?? '';
+    if (!validate_csrf_token($csrf_token)) {
+        http_response_code(403);
+        echo json_encode(['success' => false, 'error' => 'Invalid security token. Please refresh and try again.']);
+        exit;
+    }
+
     $userId = $_SESSION['user_id'];
     $appointmentId = $_POST['appointment_id'] ?? '';
     
