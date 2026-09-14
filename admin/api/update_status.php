@@ -12,6 +12,14 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
 header('Content-Type: application/json');
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // CSRF Validation (the admin session uses $_SESSION['csrf_token'])
+    $csrf_token = $_POST['csrf_token'] ?? '';
+    if (!isset($_SESSION['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $csrf_token)) {
+        http_response_code(403);
+        echo json_encode(['success' => false, 'error' => 'Invalid security token.']);
+        exit;
+    }
+
     $appointmentId = $_POST['appointment_id'] ?? '';
     $status = $_POST['status'] ?? '';
     
