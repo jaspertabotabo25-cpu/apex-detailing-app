@@ -18,7 +18,7 @@ $extraCSS = '
 .action-form { display: inline-flex; gap: 8px; }
 .action-form select { padding: 6px; border: 1px solid var(--border); border-radius: 4px; }
 ';
-$extraScripts = "
+$extraScripts = <<<HTML
 <script>
     document.querySelectorAll('.status-select').forEach(select => {
         select.addEventListener('change', function() {
@@ -67,7 +67,7 @@ $extraScripts = "
         });
     });
 </script>
-";
+HTML;
 
 require_once 'includes/admin_header.php';
 ?>
