@@ -19,11 +19,18 @@ set_exception_handler(function ($e) {
     exit;
 });
 
-$host = '127.0.0.1'; // Use IP to avoid DNS resolution delays on localhost
-$db   = 'apex_detailing';
-$user = 'root';      // Default XAMPP MySQL user
-$pass = '';          // Default XAMPP MySQL password
-$charset = 'utf8mb4';
+// Load .env variables if the file exists
+$envFile = __DIR__ . '/../.env';
+$env = [];
+if (file_exists($envFile)) {
+    $env = parse_ini_file($envFile);
+}
+
+$host = $env['DB_HOST'] ?? '127.0.0.1';
+$db   = $env['DB_NAME'] ?? 'apex_detailing';
+$user = $env['DB_USER'] ?? 'root';
+$pass = $env['DB_PASS'] ?? '';
+$charset = $env['DB_CHARSET'] ?? 'utf8mb4';
 
 $dsn = "mysql:host=$host;dbname=$db;charset=$charset";
 

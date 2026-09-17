@@ -1,6 +1,7 @@
 <?php
 // api/book.php
 require_once '../config/auth.php';
+require_once '../includes/validation.php';
 
 // Ensure the user is logged in
 if (!is_logged_in()) {
@@ -30,7 +31,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $location = htmlspecialchars(trim($_POST['b_location'] ?? ''), ENT_QUOTES, 'UTF-8');
     
     // Basic validation
-    if (empty($phone) || empty($service) || empty($date) || empty($location)) {
+    $error = validate_required_fields($_POST, ['b_phone', 'b_service', 'b_date', 'b_location']);
+    
+    if ($error) {
         http_response_code(400);
         echo json_encode(['success' => false, 'error' => 'All fields are required.']);
         exit;

@@ -1,6 +1,7 @@
 <?php
 // register.php
 require_once 'config/auth.php';
+require_once 'includes/validation.php';
 
 if (is_logged_in()) {
     header('Location: index.php');
@@ -24,19 +25,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $email = filter_var($email_input, FILTER_SANITIZE_EMAIL);
         $password = $_POST['password'] ?? '';
 
-        if (empty($name) || empty($email) || empty($password)) {
-            $error = 'Please fill in all fields.';
-        } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            $error = 'Please enter a valid email address.';
-        } elseif (strlen($password) < 8) {
-            $error = 'Password must be at least 8 characters long.';
-        } elseif (!preg_match('/[A-Z]/', $password)) {
-            $error = 'Password must contain at least one uppercase letter.';
-        } elseif (!preg_match('/[a-z]/', $password)) {
-            $error = 'Password must contain at least one lowercase letter.';
-        } elseif (!preg_match('/[\W_]/', $password)) {
-            $error = 'Password must contain at least one special character.';
-        } else {
+        $error = validate_required_fields($_POST, ['name', 'email', 'password'])
+              ?? validate_email_format($email)
+              ?? validate_password_strength($password);
+
+        if (!$error) {
             // Check if email exists
             $stmt = $pdo->prepare("SELECT id FROM users WHERE email = ?");
             $stmt->execute([$email]);

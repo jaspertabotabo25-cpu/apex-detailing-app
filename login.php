@@ -1,6 +1,7 @@
 <?php
 // login.php
 require_once 'config/auth.php';
+require_once 'includes/validation.php';
 
 if (is_logged_in()) {
     header('Location: index.php');
@@ -21,11 +22,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $email = filter_var($email_input, FILTER_SANITIZE_EMAIL);
         $password = $_POST['password'] ?? '';
 
-        if (empty($email) || empty($password)) {
-            $error = 'Please fill in all fields.';
-        } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            $error = 'Please enter a valid email address.';
-        } else {
+        $error = validate_required_fields($_POST, ['email', 'password'])
+              ?? validate_email_format($email);
+
+        if (!$error) {
             // Secure prepared statement
             $stmt = $pdo->prepare("SELECT * FROM users WHERE email = ?");
             $stmt->execute([$email]);

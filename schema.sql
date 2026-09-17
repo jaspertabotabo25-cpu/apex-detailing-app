@@ -38,7 +38,7 @@ CREATE TABLE IF NOT EXISTS services (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Default Admin User (Password is 'admin123')
+-- Default Admin User (Password is 'ApexSecure@2026!')
 INSERT INTO users (name, email, password_hash, role) 
-VALUES ('System Admin', 'admin@apexcustomdetail.ph', '$2y$10$AEIuLx8RlcFh0FZJ1tf2.O9xrQzaN6sJi/Zfmz4Yu9RY3h5ehVL3K', 'admin')
+VALUES ('System Admin', 'admin@apexcustomdetail.ph', '$2y$10$byR1n6WzK1tUpKSuKsR5gezXWWQOXqO22m8K.YN3BFSNbIQM7kZDK', 'admin')
 ON DUPLICATE KEY UPDATE role='admin';
