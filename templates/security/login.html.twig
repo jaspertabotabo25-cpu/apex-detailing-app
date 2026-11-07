@@ -1,0 +1,43 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Log In - Apex Custom Detailing{% endblock %}
+
+{% block body %}
+<div class="wrap" style="padding: 60px 20px; display: flex; justify-content: center; align-items: center; min-height: 70vh;">
+    <div style="background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); padding: 40px; width: 100%; max-width: 440px; box-shadow: 0 10px 25px rgba(0,0,0,0.05);">
+        <div style="text-align: center; margin-bottom: 25px;">
+            <img src="{{ asset('assets/svg_brand_logo.svg') }}" alt="Apex" style="height: 48px; margin-bottom: 12px;">
+            <h2 style="font-family: 'Poppins', sans-serif; font-size: 1.6rem; margin-bottom: 6px;">Welcome Back</h2>
+            <p style="color: var(--gray); font-size: 0.9rem;">Log in to manage your appointments and vehicles.</p>
+        </div>
+
+        {% if error %}
+            <div style="background:#fee2e2; border:1px solid #fca5a5; color:#991b1b; padding:12px; border-radius:6px; margin-bottom:20px; font-size:0.9rem;">
+                {{ error.messageKey|trans(error.messageData, 'security') }}
+            </div>
+        {% endif %}
+
+        <form method="post" action="{{ path('app_login') }}">
+            <div class="form-group" style="margin-bottom: 18px;">
+                <label for="username" style="display:block; margin-bottom:6px; font-weight:500;">Email Address</label>
+                <input type="email" value="{{ last_username }}" name="_username" id="username" class="form-control" autocomplete="email" required autofocus style="width:100%; padding:12px; border:1px solid var(--border); border-radius:6px; background:#f8fafc;">
+            </div>
+
+            <div class="form-group" style="margin-bottom: 22px;">
+                <label for="password" style="display:block; margin-bottom:6px; font-weight:500;">Password</label>
+                <input type="password" name="_password" id="password" class="form-control" autocomplete="current-password" required style="width:100%; padding:12px; border:1px solid var(--border); border-radius:6px; background:#f8fafc;">
+            </div>
+
+            <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
+
+            <button type="submit" class="btn btn-navy" style="width: 100%; padding: 14px; font-size: 1rem; margin-bottom: 18px;">
+                Log In
+            </button>
+        </form>
+
+        <div style="text-align: center; font-size: 0.9rem; color: var(--gray);">
+            Don't have an account? <a href="{{ path('app_register') }}" style="color: var(--navy); font-weight: 600; text-decoration: underline;">Create one here</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

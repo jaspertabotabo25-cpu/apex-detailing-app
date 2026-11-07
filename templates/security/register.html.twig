@@ -1,0 +1,56 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Create Account - Apex Custom Detailing{% endblock %}
+
+{% block body %}
+<div class="wrap" style="padding: 60px 20px; display: flex; justify-content: center; align-items: center; min-height: 75vh;">
+    <div style="background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); padding: 40px; width: 100%; max-width: 480px; box-shadow: 0 10px 25px rgba(0,0,0,0.05);">
+        <div style="text-align: center; margin-bottom: 25px;">
+            <img src="{{ asset('assets/svg_brand_logo.svg') }}" alt="Apex" style="height: 48px; margin-bottom: 12px;">
+            <h2 style="font-family: 'Poppins', sans-serif; font-size: 1.6rem; margin-bottom: 6px;">Create Your Account</h2>
+            <p style="color: var(--gray); font-size: 0.9rem;">Join Apex Detailing to book home-service detailing.</p>
+        </div>
+
+        {% if error %}
+            <div style="background:#fee2e2; border:1px solid #fca5a5; color:#991b1b; padding:12px; border-radius:6px; margin-bottom:20px; font-size:0.9rem;">
+                {{ error }}
+            </div>
+        {% endif %}
+
+        <form method="post" action="{{ path('app_register') }}">
+            <div class="form-group" style="margin-bottom: 16px;">
+                <label for="name" style="display:block; margin-bottom:6px; font-weight:500;">Full Name</label>
+                <input type="text" name="name" id="name" required style="width:100%; padding:12px; border:1px solid var(--border); border-radius:6px; background:#f8fafc;">
+            </div>
+
+            <div class="form-group" style="margin-bottom: 16px;">
+                <label for="email" style="display:block; margin-bottom:6px; font-weight:500;">Email Address</label>
+                <input type="email" name="email" id="email" required style="width:100%; padding:12px; border:1px solid var(--border); border-radius:6px; background:#f8fafc;">
+            </div>
+
+            <div class="form-group" style="margin-bottom: 16px;">
+                <label for="phone" style="display:block; margin-bottom:6px; font-weight:500;">Phone Number</label>
+                <input type="tel" name="phone" id="phone" placeholder="+63 9XX XXX XXXX" style="width:100%; padding:12px; border:1px solid var(--border); border-radius:6px; background:#f8fafc;">
+            </div>
+
+            <div class="form-group" style="margin-bottom: 16px;">
+                <label for="password" style="display:block; margin-bottom:6px; font-weight:500;">Password (min 6 chars)</label>
+                <input type="password" name="password" id="password" required style="width:100%; padding:12px; border:1px solid var(--border); border-radius:6px; background:#f8fafc;">
+            </div>
+
+            <div class="form-group" style="margin-bottom: 22px;">
+                <label for="confirm_password" style="display:block; margin-bottom:6px; font-weight:500;">Confirm Password</label>
+                <input type="password" name="confirm_password" id="confirm_password" required style="width:100%; padding:12px; border:1px solid var(--border); border-radius:6px; background:#f8fafc;">
+            </div>
+
+            <button type="submit" class="btn btn-navy" style="width: 100%; padding: 14px; font-size: 1rem; margin-bottom: 18px;">
+                Create Account
+            </button>
+        </form>
+
+        <div style="text-align: center; font-size: 0.9rem; color: var(--gray);">
+            Already have an account? <a href="{{ path('app_login') }}" style="color: var(--navy); font-weight: 600; text-decoration: underline;">Log in here</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

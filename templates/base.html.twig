@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Apex Custom Detailing - Sleek, Premium, Efficient{% endblock %}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ asset('css/styles.css') }}">
+    {% block stylesheets %}{% endblock %}
+</head>
+<body>
+    <!-- ============ HEADER ============ -->
+    <header>
+        <div class="header-inner">
+            <a href="{{ path('app_home') }}" class="brand">
+                <img src="{{ asset('assets/svg_brand_logo.svg') }}" alt="Apex Custom Detailing">
+            </a>
+            <nav class="main-nav" id="mainNav">
+                <a href="{{ path('app_home') }}#home" class="active">Home</a>
+                <a href="{{ path('app_home') }}#services">Services</a>
+                <a href="{{ path('app_home') }}#gallery">Gallery</a>
+                <a href="{{ path('app_home') }}#contact">Contact</a>
+
+                {% if is_granted('ROLE_ADMIN') %}
+                    <a href="{{ path('admin_dashboard') }}" style="color:var(--navy);font-weight:bold;">Admin Dashboard</a>
+                    <a href="{{ path('app_logout') }}" class="btn" style="border: 1px solid var(--border); padding: 10px 20px;">Logout</a>
+                {% elseif is_granted('ROLE_USER') %}
+                    <a href="{{ path('app_my_appointments') }}" style="color:var(--navy);font-weight:bold;">My Bookings</a>
+                    <a href="{{ path('app_logout') }}" class="btn" style="border: 1px solid var(--border); padding: 10px 20px;">Logout</a>
+                    <a href="{{ path('app_home') }}#book" class="btn btn-navy open-book-modal">Book Now</a>
+                {% else %}
+                    <a href="{{ path('app_login') }}" class="btn" style="border: 1px solid var(--border); padding: 10px 20px;">Login</a>
+                    <a href="{{ path('app_login') }}" class="btn btn-navy">Book Now</a>
+                {% endif %}
+            </nav>
+            <button class="nav-toggle" id="navToggle" aria-label="Toggle menu">
+                <span></span><span></span><span></span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Flash Messages -->
+    <div class="wrap" style="padding-top: 15px;">
+        {% for message in app.flashes('success') %}
+            <div style="background:#dcfce7; border:1px solid #86efac; color:#166534; padding:14px 20px; border-radius:8px; margin-bottom:15px; font-weight:500;">
+                ✓ {{ message }}
+            </div>
+        {% endfor %}
+        {% for message in app.flashes('error') %}
+            <div style="background:#fee2e2; border:1px solid #fca5a5; color:#991b1b; padding:14px 20px; border-radius:8px; margin-bottom:15px; font-weight:500;">
+                ⚠ {{ message }}
+            </div>
+        {% endfor %}
+    </div>
+
+    <!-- Main Content -->
+    <main>
+        {% block body %}{% endblock %}
+    </main>
+
+    <!-- ============ FOOTER ============ -->
+    <footer id="contact">
+        <div class="wrap">
+            <div class="footer-grid">
+                <div class="footer-brand">
+                    <img src="{{ asset('assets/svg_brand_logo.svg') }}" alt="Apex Custom Detailing" class="footer-logo">
+                    <p>Sleek. Premium. Efficient.</p>
+                </div>
+                <div>
+                    <h4>COMPANY</h4>
+                    <ul>
+                        <li><a href="{{ path('app_home') }}#about">About Us</a></li>
+                        <li><a href="{{ path('app_home') }}#services">Our Services</a></li>
+                        <li><a href="{{ path('app_home') }}#gallery">Gallery</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4>SERVICE AREAS</h4>
+                    <ul>
+                        <li><a href="#">Dumaguete City</a></li>
+                        <li><a href="#">Ronda, Cebu</a></li>
+                        <li><a href="#">Surrounding Regions</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4>CONTACT</h4>
+                    <ul>
+                        <li><a href="mailto:booking@apexcustomdetail.ph">booking@apexcustomdetail.ph</a></li>
+                        <li><a href="tel:+639123456789">+63 912 345 6789</a></li>
+                        <li><a href="#">Instagram</a></li>
+                        <li><a href="#">Facebook</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                &copy; {{ "now"|date('Y') }} Apex Custom Detailing. Powered by Symfony & Docker.
+            </div>
+        </div>
+    </footer>
+
+    <script src="{{ asset('js/script.js') }}"></script>
+    {% block javascripts %}{% endblock %}
+</body>
+</html>

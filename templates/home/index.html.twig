@@ -1,0 +1,338 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Apex Custom Detailing | Premium Detailing, Delivered To You{% endblock %}
+
+{% block body %}
+    <!-- ============ HERO ============ -->
+    <section class="hero" id="home">
+        <div class="hex-pattern"></div>
+        <img src="{{ asset('assets/Logo_Apex_top.png') }}" alt="" class="hero-apex-watermark-top" aria-hidden="true">
+        <img src="{{ asset('assets/Logo_Apex.png') }}" alt="" class="hero-apex-watermark-bottom" aria-hidden="true">
+        <div class="hero-inner">
+            <div class="hero-copy">
+                <h1>PREMIUM DETAILING,<br>DELIVERED TO YOU.</h1>
+                <p>Seamlessly blending premium detailing with practical efficiency in home-service vehicle cleaning.</p>
+                <div style="display:flex; gap:12px; flex-wrap:wrap;">
+                    <a href="#services" class="btn btn-gray" id="viewPackagesBtn">View Packages</a>
+                    {% if app.user %}
+                        <a href="#book" class="btn btn-navy open-book-modal">Book Service</a>
+                    {% else %}
+                        <a href="{{ path('app_login') }}" class="btn btn-navy">Book Service</a>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="hero-visual">
+                <img src="{{ asset('assets/Car-hero.png') }}" alt="Detailed BMW front view">
+            </div>
+        </div>
+    </section>
+
+    <!-- ============ VISION ============ -->
+    <section class="vision" id="about">
+        <div class="wrap">
+            <div class="vision-inner">
+                <div>
+                    <h2>THE APEX VISION</h2>
+                    <p>We seamlessly blend premium detailing with practical efficiency in home-service vehicle cleaning. We aim to create a sleek, high-end automotive aesthetic that aligns entirely with your vision.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============ SERVICES ============ -->
+    <section class="services" id="services">
+        <div class="wrap">
+            <h2 class="section-heading">FEATURED SERVICES</h2>
+            <div class="eyebrow-underline"></div>
+
+            <div class="services-grid">
+                <div class="service-card book-service-trigger" data-service="Standard Wash">
+                    <div class="thumb"><img src="{{ asset('assets/service-standard-wash.jpg') }}" alt="Standard Wash"></div>
+                    <div class="body">
+                        <h3>Standard Wash</h3>
+                        <p>A thorough, efficient maintenance wash designed to restore your vehicle's daily shine and protect its exterior finish.</p>
+                    </div>
+                </div>
+
+                <div class="service-card featured book-service-trigger" data-service="Custom Detail">
+                    <div class="thumb"><img src="{{ asset('assets/service-custom-detail.jpg') }}" alt="Custom Detail"></div>
+                    <div class="body">
+                        <h3>Custom Detail</h3>
+                        <p>Comprehensive interior and exterior restoration. We refine every inch to achieve a flawless, high-end aesthetic tailored to you.</p>
+                    </div>
+                </div>
+
+                <div class="service-card book-service-trigger" data-service="Moto Custom & Detail">
+                    <div class="thumb"><img src="{{ asset('assets/service-moto-detail.jpg') }}" alt="Moto Custom & Detail"></div>
+                    <div class="body">
+                        <h3>Moto Custom &amp; Detail</h3>
+                        <p>Specialized detailing highlighting custom design styling, precise parts integration, and custom color accent preservation.</p>
+                    </div>
+                </div>
+            </div>
+
+            {% if services|length > 0 %}
+                <div style="text-align: center; margin-top: 35px;">
+                    <button class="btn btn-outline" id="openAllServicesBtn">View All Services ({{ services|length }})</button>
+                </div>
+            {% endif %}
+        </div>
+    </section>
+
+    <!-- ============ HOW IT WORKS ============ -->
+    <section class="how">
+        <div class="wrap">
+            <h2 class="section-heading">HOW IT WORKS</h2>
+
+            <div class="steps" id="howItWorksSteps">
+                <div class="step fade-in-step">
+                    <div class="step-circle">1</div>
+                    <div class="step-title">Book Online</div>
+                    <p>Schedule your detail online. We service home garages from Dumaguete City to Ronda.</p>
+                </div>
+                <div class="step fade-in-step">
+                    <div class="step-circle">2</div>
+                    <div class="step-title">We Arrive</div>
+                    <p>Our team arrives fully equipped with our own water and power to perform the work right at your location.</p>
+                </div>
+                <div class="step fade-in-step">
+                    <div class="step-circle">3</div>
+                    <div class="step-title">Flawless Finish</div>
+                    <p>Review the final aesthetic and enjoy your completely refreshed, showroom-ready custom ride.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============ RECENT WORK (PORTFOLIO) ============ -->
+    <section class="recent" id="gallery">
+        <div class="wrap">
+            <h2 class="section-heading left">RECENT WORK</h2>
+            <div class="eyebrow-underline" style="margin-left:0;"></div>
+
+            {% set p1 = portfolio[0] ?? null %}
+            {% set p2 = portfolio[1] ?? null %}
+            {% set p3 = portfolio[2] ?? null %}
+            {% set p4 = portfolio[3] ?? null %}
+
+            <div class="work-grid">
+                <div class="work-card tall-card">
+                    <img src="{{ p1 ? asset(p1.imagePath) : asset('assets/work-premium-detailing.jpg') }}" alt="{{ p1 ? p1.description : 'Premium Detailing' }}" class="lightbox-trigger">
+                    <div class="work-overlay">
+                        <div class="work-caption">{{ p1 ? p1.description : 'Multi-stage paint correction and ceramic protection' }}</div>
+                    </div>
+                </div>
+                <div class="work-right">
+                    <div class="work-card wide-card">
+                        <img src="{{ p2 ? asset(p2.imagePath) : asset('assets/work-interior-detailing.jpg') }}" alt="{{ p2 ? p2.description : 'Interior Detailing' }}" class="lightbox-trigger">
+                        <div class="work-overlay">
+                            <div class="work-caption">{{ p2 ? p2.description : 'Complete interior rejuvenation with steam decontamination' }}</div>
+                        </div>
+                    </div>
+                    <div class="work-pair">
+                        <div class="work-card small-card">
+                            <img src="{{ p3 ? asset(p3.imagePath) : asset('assets/work-custom-rim.jpg') }}" alt="{{ p3 ? p3.description : 'Custom Rim Detail' }}" class="lightbox-trigger">
+                            <div class="work-overlay">
+                                <div class="work-caption">{{ p3 ? p3.description : 'Custom wheel ceramic shield and caliber polish' }}</div>
+                            </div>
+                        </div>
+                        <div class="work-card small-card">
+                            <img src="{{ p4 ? asset(p4.imagePath) : asset('assets/work-full-body-wash.jpg') }}" alt="{{ p4 ? p4.description : 'Maintenance Wash' }}" class="lightbox-trigger">
+                            <div class="work-overlay">
+                                <div class="work-caption">{{ p4 ? p4.description : 'Touchless snow foam and dual-bucket wash' }}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============ CLIENT REVIEWS ============ -->
+    <section class="reviews">
+        <div class="hex-pattern"></div>
+        <div class="wrap" style="position:relative;z-index:2;">
+            <h2 class="section-heading">CLIENT REVIEWS</h2>
+
+            <div class="reviews-container">
+                <div class="reviews-grid">
+                    <div class="review-card">
+                        <div class="stars">★★★★★</div>
+                        <p class="quote">"Absolutely flawless execution. They handled my custom wheels with perfect precision."</p>
+                        <div class="author">- Rogen S.</div>
+                    </div>
+                    <div class="review-card">
+                        <div class="stars">★★★★★</div>
+                        <p class="quote">"The convenience of having premium detailing done right in my own driveway is unmatched."</p>
+                        <div class="author">- Ian Rey F.</div>
+                    </div>
+                    <div class="review-card">
+                        <div class="stars">★★★★★</div>
+                        <p class="quote">"Incredible attention to detail. They respected the specific aesthetic I wanted for my motorcycle build."</p>
+                        <div class="author">- John Paul P.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============ FAQ ============ -->
+    <section class="faq">
+        <div class="wrap">
+            <h2 class="section-heading">FREQUENTLY ASKED QUESTIONS</h2>
+
+            <div class="faq-list" id="faqList">
+                <div class="faq-item">
+                    <button class="faq-question">
+                        Do I need to provide a water or power source?
+                        <span class="icon">+</span>
+                    </button>
+                    <div class="faq-answer">
+                        <div class="faq-answer-inner">
+                            <p>No need. Our mobile detailing rig arrives equipped with our own purified water tank and silent power generator, completing full service in your driveway.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <button class="faq-question">
+                        How long does a Complete Custom Detail take?
+                        <span class="icon">+</span>
+                    </button>
+                    <div class="faq-answer">
+                        <div class="faq-answer-inner">
+                            <p>A Complete Custom Detail typically takes between 3 to 5 hours, depending on your vehicle's size and condition.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <button class="faq-question">
+                        Do you service locations outside of Dumaguete City?
+                        <span class="icon">+</span>
+                    </button>
+                    <div class="faq-answer">
+                        <div class="faq-answer-inner">
+                            <p>Yes, we currently extend our home-service coverage to Ronda, Cebu and surrounding regions. Book online to reserve your slot.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============ CTA ============ -->
+    <section class="cta" id="book">
+        <div class="wrap">
+            <h2>READY TO ELEVATE YOUR RIDE?</h2>
+            <p>Book your home-service appointment today.</p>
+            {% if app.user %}
+                <button class="btn btn-navy open-book-modal">Schedule A Wash</button>
+            {% else %}
+                <a href="{{ path('app_login') }}" class="btn btn-navy">Login to Schedule</a>
+            {% endif %}
+        </div>
+    </section>
+
+    <!-- ============ MODALS ============ -->
+    <!-- All Services Modal -->
+    <dialog id="allServicesModal" class="modal">
+        <div class="modal-content">
+            <button class="modal-close" id="closeAllServicesBtn" aria-label="Close modal">&times;</button>
+            <h2>All Services</h2>
+            <p>Browse our complete list of detailing packages.</p>
+            
+            <div class="all-services-list">
+                {% for srv in services %}
+                    <div class="all-services-item">
+                        <span class="all-services-name">{{ srv.name }}</span>
+                        {% if app.user %}
+                            <button class="btn btn-navy btn-sm book-specific-service" data-service="{{ srv.name }}" style="padding: 8px 16px; font-size: 0.8rem;">Book This</button>
+                        {% else %}
+                            <a href="{{ path('app_login') }}" class="btn btn-navy btn-sm" style="padding: 8px 16px; font-size: 0.8rem;">Login to Book</a>
+                        {% endif %}
+                    </div>
+                {% else %}
+                    <p>No active services listed yet.</p>
+                {% endfor %}
+            </div>
+        </div>
+    </dialog>
+
+    <!-- Booking Modal -->
+    <dialog id="bookingModal" class="modal">
+        <div class="modal-content">
+            <button class="modal-close" id="closeModalBtn" aria-label="Close modal">&times;</button>
+            <h2>Book Your Service</h2>
+            <p id="bookingFormDesc">Fill out the details below and we'll confirm your appointment.</p>
+
+            <div id="bookingSuccessMessage" style="display: none; text-align: center; padding: 30px 10px;">
+                <h3 style="color: #155724; margin-bottom: 15px; font-family: 'Poppins', sans-serif;">Appointment Requested!</h3>
+                <p style="margin-bottom: 25px;">Your detailing appointment has been successfully requested. We will contact you shortly to confirm the details.</p>
+                <a href="{{ path('app_my_appointments') }}" class="btn btn-navy">View My Bookings</a>
+            </div>
+
+            {% if app.user %}
+                <form action="{{ path('app_book') }}" method="POST" id="bookingForm" class="booking-form">
+                    <div class="form-group">
+                        <label for="b_name">Full Name</label>
+                        <input type="text" id="b_name" name="b_name" value="{{ app.user.name }}" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="b_phone">Phone Number</label>
+                        <input type="tel" id="b_phone" name="b_phone" value="{{ app.user.phone }}" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="b_service">Select Service</label>
+                        <select id="b_service" name="b_service" required>
+                            <option value="">Choose a service...</option>
+                            {% for srv in services %}
+                                <option value="{{ srv.name }}">{{ srv.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    {% if vehicles|length > 0 %}
+                        <div class="form-group">
+                            <label for="vehicle_id">Select Vehicle</label>
+                            <select id="vehicle_id" name="vehicle_id">
+                                <option value="">-- Choose registered vehicle or add new below --</option>
+                                {% for v in vehicles %}
+                                    <option value="{{ v.id }}">{{ v.displayName }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    {% endif %}
+
+                    <div class="form-group">
+                        <label for="b_date">Preferred Date & Time</label>
+                        <input type="datetime-local" id="b_date" name="b_date" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="b_location">Service Location (Driveway Address)</label>
+                        <input type="text" id="b_location" name="b_location" placeholder="e.g. 123 Main St, Dumaguete City" value="{{ app.user.address }}" required>
+                    </div>
+
+                    <button type="submit" class="btn btn-navy w-100" id="submitBookingBtn">Confirm Booking</button>
+                </form>
+            {% else %}
+                <div style="text-align:center; padding: 20px 0;">
+                    <p style="margin-bottom: 20px;">You must be logged in to book an appointment.</p>
+                    <a href="{{ path('app_login') }}" class="btn btn-navy">Log In</a>
+                    <a href="{{ path('app_register') }}" class="btn btn-outline" style="margin-left: 10px;">Create Account</a>
+                </div>
+            {% endif %}
+        </div>
+    </dialog>
+
+    <!-- Lightbox Overlay -->
+    <div id="lightboxOverlay" class="lightbox-overlay">
+        <button class="lightbox-close" id="closeLightboxBtn" aria-label="Close lightbox">&times;</button>
+        <div class="lightbox-content">
+            <img src="" alt="" id="lightboxImg">
+        </div>
+    </div>
+{% endblock %}

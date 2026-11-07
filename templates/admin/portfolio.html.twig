@@ -1,0 +1,56 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Portfolio Showcase - Apex Admin{% endblock %}
+{% block page_title %}Showcase Gallery Management{% endblock %}
+{% block page_subtitle %}Upload completed detailing photos to highlight on the public homepage{% endblock %}
+
+{% block body %}
+<div style="display:grid; grid-template-columns:2fr 1fr; gap:24px;">
+    <!-- Gallery Grid -->
+    <div class="card">
+        <h2 style="font-size:1.15rem; font-family:'Poppins', sans-serif; margin-bottom:15px;">Showcase Gallery Items ({{ portfolio|length }})</h2>
+
+        {% if portfolio|length > 0 %}
+            <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(200px, 1fr)); gap:16px;">
+                {% for item in portfolio %}
+                    <div style="border:1px solid #e2e8f0; border-radius:6px; overflow:hidden; background:#fff; display:flex; flex-direction:column;">
+                        <img src="{{ asset(item.imagePath) }}" alt="{{ item.description }}" style="width:100%; height:140px; object-fit:cover;">
+                        <div style="padding:10px; flex-grow:1; display:flex; flex-direction:column; justify-content:space-between;">
+                            <div style="font-size:0.8rem; color:#475569; margin-bottom:8px;">{{ item.description ?: 'No description' }}</div>
+                            <form action="{{ path('admin_portfolio_delete', { id: item.id }) }}" method="POST" onsubmit="return confirm('Delete this showcase photo?');">
+                                <button type="submit" class="btn btn-outline" style="width:100%; padding:4px; font-size:0.75rem; color:#dc2626; border-color:#fca5a5;">
+                                    Delete
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p style="color:#64748b; padding:20px 0; text-align:center;">No showcase photos uploaded yet.</p>
+        {% endif %}
+    </div>
+
+    <!-- Upload Photo Form -->
+    <div>
+        <div class="card">
+            <h2 style="font-size:1.15rem; font-family:'Poppins', sans-serif; margin-bottom:15px;">Upload Showcase Photo</h2>
+            <form action="{{ path('admin_portfolio_upload') }}" method="POST" enctype="multipart/form-data">
+                <div style="margin-bottom:15px;">
+                    <label style="display:block; font-size:0.85rem; font-weight:600; margin-bottom:4px;">Image File (JPG, PNG, WEBP)</label>
+                    <input type="file" name="image" required accept="image/*" style="width:100%; padding:8px; border:1px solid #cbd5e1; border-radius:6px; font-size:0.85rem;">
+                </div>
+
+                <div style="margin-bottom:20px;">
+                    <label style="display:block; font-size:0.85rem; font-weight:600; margin-bottom:4px;">Caption / Description</label>
+                    <textarea name="description" rows="3" placeholder="e.g. 5-year ceramic coating applied on Porsche 911" style="width:100%; padding:10px; border:1px solid #cbd5e1; border-radius:6px; font-size:0.85rem;"></textarea>
+                </div>
+
+                <button type="submit" class="btn btn-navy" style="width:100%; padding:10px; font-size:0.9rem;">
+                    Upload Showcase Photo
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

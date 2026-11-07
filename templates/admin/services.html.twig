@@ -1,0 +1,68 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Detailing Packages - Apex Admin{% endblock %}
+{% block page_title %}Detailing Packages & Services{% endblock %}
+{% block page_subtitle %}Manage service offerings displayed to clients on the booking portal{% endblock %}
+
+{% block body %}
+<div style="display:grid; grid-template-columns:2fr 1fr; gap:24px;">
+    <!-- Services List -->
+    <div class="card">
+        <h2 style="font-size:1.15rem; font-family:'Poppins', sans-serif; margin-bottom:15px;">Active Services</h2>
+
+        {% if services|length > 0 %}
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Service Name</th>
+                        <th>Status</th>
+                        <th>Created</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for s in services %}
+                        <tr>
+                            <td>
+                                <strong>{{ s.name }}</strong>
+                            </td>
+                            <td>
+                                {% if s.isActive %}
+                                    <span class="badge approved">Active</span>
+                                {% else %}
+                                    <span class="badge cancelled">Inactive</span>
+                                {% endif %}
+                            </td>
+                            <td style="color:#64748b; font-size:0.8rem;">{{ s.createdAt|date('M j, Y') }}</td>
+                            <td>
+                                <form action="{{ path('admin_service_toggle', { id: s.id }) }}" method="POST">
+                                    <button type="submit" class="btn btn-outline" style="padding:4px 10px; font-size:0.75rem;">
+                                        {{ s.isActive ? 'Deactivate' : 'Activate' }}
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p style="color:#64748b; padding:20px 0; text-align:center;">No services added yet.</p>
+        {% endif %}
+    </div>
+
+    <!-- Add Service Form -->
+    <div>
+        <div class="card">
+            <h2 style="font-size:1.15rem; font-family:'Poppins', sans-serif; margin-bottom:15px;">Add Service Package</h2>
+            <form action="{{ path('admin_service_add') }}" method="POST">
+                <div style="margin-bottom:18px;">
+                    <label style="display:block; font-size:0.85rem; font-weight:600; margin-bottom:4px;">Service Package Name</label>
+                    <input type="text" name="name" required placeholder="e.g. Engine Bay Deep Clean" style="width:100%; padding:10px; border:1px solid #cbd5e1; border-radius:6px; font-size:0.9rem;">
+                </div>
+
+                <button type="submit" class="btn btn-navy" style="width:100%; padding:10px; font-size:0.9rem;">+ Create Package</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

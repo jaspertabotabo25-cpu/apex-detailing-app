@@ -1,0 +1,107 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}My Detailing Appointments - Apex{% endblock %}
+
+{% block body %}
+<div class="wrap" style="padding: 40px 20px; min-height: 70vh;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; flex-wrap: wrap; gap: 15px;">
+        <div>
+            <h1 style="font-family: 'Poppins', sans-serif; font-size: 1.8rem; margin-bottom: 4px;">My Bookings</h1>
+            <p style="color: var(--gray);">Manage and track your home-service appointments.</p>
+        </div>
+        <a href="{{ path('app_home') }}#book" class="btn btn-navy open-book-modal">+ Book New Detail</a>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 30px;" class="dashboard-layout">
+        <!-- Appointments List -->
+        <div>
+            <h2 style="font-family: 'Poppins', sans-serif; font-size: 1.3rem; margin-bottom: 16px;">Appointment History</h2>
+            {% if appointments|length > 0 %}
+                <div style="display: flex; flex-direction: column; gap: 16px;">
+                    {% for apt in appointments %}
+                        <div style="background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); padding: 22px; box-shadow: 0 4px 12px rgba(0,0,0,0.03);">
+                            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;">
+                                <div>
+                                    <h3 style="font-size: 1.15rem; color: var(--navy); margin-bottom: 4px;">{{ apt.serviceType }}</h3>
+                                    <div style="font-size: 0.9rem; color: var(--gray);">
+                                        📅 <strong>{{ apt.appointmentDate|date('F j, Y \\a\\t g:i A') }}</strong>
+                                    </div>
+                                </div>
+                                <div>
+                                    {% if apt.status == 'approved' %}
+                                        <span style="background: #dcfce7; color: #166534; padding: 6px 14px; border-radius: 20px; font-weight: 600; font-size: 0.8rem; text-transform: uppercase;">Confirmed</span>
+                                    {% elseif apt.status == 'pending' %}
+                                        <span style="background: #fef3c7; color: #92400e; padding: 6px 14px; border-radius: 20px; font-weight: 600; font-size: 0.8rem; text-transform: uppercase;">Pending Confirmation</span>
+                                    {% else %}
+                                        <span style="background: #fee2e2; color: #991b1b; padding: 6px 14px; border-radius: 20px; font-weight: 600; font-size: 0.8rem; text-transform: uppercase;">Cancelled</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 0.9rem; margin-bottom: 16px; background: #f8fafc; padding: 12px; border-radius: 6px;">
+                                <div>
+                                    <span style="color: #64748b;">Vehicle:</span> 
+                                    <strong>{{ apt.vehicle ? apt.vehicle.displayName : 'Not specified' }}</strong>
+                                </div>
+                                <div>
+                                    <span style="color: #64748b;">Location:</span> 
+                                    <span>{{ apt.location }}</span>
+                                </div>
+                                <div>
+                                    <span style="color: #64748b;">Contact:</span> 
+                                    <span>{{ apt.phone }}</span>
+                                </div>
+                                <div>
+                                    <span style="color: #64748b;">Est. Duration:</span> 
+                                    <span>{{ apt.durationMinutes }} minutes</span>
+                                </div>
+                            </div>
+
+                            {% if apt.status == 'pending' %}
+                                <form action="{{ path('app_appointment_cancel', { id: apt.id }) }}" method="POST" onsubmit="return confirm('Are you sure you want to cancel this booking?');">
+                                    <button type="submit" class="btn btn-outline" style="font-size: 0.85rem; padding: 8px 16px; color: #dc2626; border-color: #fca5a5;">
+                                        Cancel Appointment
+                                    </button>
+                                </form>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div style="background: var(--white); border: 1px dashed var(--border); border-radius: var(--radius); padding: 40px; text-align: center;">
+                    <p style="color: var(--gray); margin-bottom: 20px;">You haven't scheduled any detailing appointments yet.</p>
+                    <a href="{{ path('app_home') }}#book" class="btn btn-navy open-book-modal">Schedule Your First Wash</a>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Registered Vehicles / Profile Card -->
+        <div>
+            <div style="background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; margin-bottom: 24px;">
+                <h3 style="font-family: 'Poppins', sans-serif; font-size: 1.15rem; margin-bottom: 15px;">Your Garage</h3>
+                {% if vehicles|length > 0 %}
+                    <ul style="list-style: none; padding: 0; margin: 0;">
+                        {% for v in vehicles %}
+                            <li style="padding: 10px 0; border-bottom: 1px solid #f1f5f9; display: flex; align-items: center; gap: 10px;">
+                                <span style="font-size: 1.2rem;">🚗</span>
+                                <div>
+                                    <div style="font-weight: 600;">{{ v.make }} {{ v.model }}</div>
+                                    <div style="font-size: 0.8rem; color: #64748b;">{{ v.color }} &bull; {{ v.licensePlate ?: 'No Plate' }}</div>
+                                </div>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p style="font-size: 0.9rem; color: var(--gray);">No vehicles saved. When you book a service, your vehicle will be added to your profile automatically.</p>
+                {% endif %}
+            </div>
+
+            <div style="background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px;">
+                <h3 style="font-family: 'Poppins', sans-serif; font-size: 1.15rem; margin-bottom: 12px;">Need Help?</h3>
+                <p style="font-size: 0.85rem; color: var(--gray); margin-bottom: 15px;">Need to reschedule or request specialized multi-vehicle fleet detailing?</p>
+                <a href="tel:+639123456789" class="btn btn-outline" style="width: 100%; text-align: center; display: block; padding: 10px;">Call Support</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

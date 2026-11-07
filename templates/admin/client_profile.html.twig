@@ -1,0 +1,89 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Client Profile - {{ client.name }}{% endblock %}
+{% block page_title %}{{ client.name }}{% endblock %}
+{% block page_subtitle %}Client information, registered vehicles, and complete service history{% endblock %}
+
+{% block body %}
+<div style="margin-bottom:20px;">
+    <a href="{{ path('admin_clients') }}" style="color:var(--navy); font-size:0.85rem; font-weight:600;">&larr; Back to Client Directory</a>
+</div>
+
+<div style="display:grid; grid-template-columns:1fr 2fr; gap:24px;">
+    <!-- Client Info Card -->
+    <div>
+        <div class="card">
+            <h3 style="font-size:1.1rem; font-family:'Poppins', sans-serif; margin-bottom:15px;">Contact Info</h3>
+            <div style="font-size:0.9rem; display:flex; flex-direction:column; gap:10px;">
+                <div>
+                    <span style="color:#64748b; display:block; font-size:0.8rem;">Email</span>
+                    <strong>{{ client.email }}</strong>
+                </div>
+                <div>
+                    <span style="color:#64748b; display:block; font-size:0.8rem;">Phone</span>
+                    <span>{{ client.phone ?: 'None' }}</span>
+                </div>
+                <div>
+                    <span style="color:#64748b; display:block; font-size:0.8rem;">Address</span>
+                    <span>{{ client.address ?: 'None provided' }}</span>
+                </div>
+                <div>
+                    <span style="color:#64748b; display:block; font-size:0.8rem;">Account Created</span>
+                    <span>{{ client.createdAt|date('F j, Y') }}</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3 style="font-size:1.1rem; font-family:'Poppins', sans-serif; margin-bottom:12px;">Saved Vehicles</h3>
+            {% if vehicles|length > 0 %}
+                <ul style="list-style:none; padding:0; margin:0;">
+                    {% for v in vehicles %}
+                        <li style="padding:8px 0; border-bottom:1px solid #f1f5f9;">
+                            <div style="font-weight:600; font-size:0.9rem;">{{ v.make }} {{ v.model }}</div>
+                            <div style="font-size:0.75rem; color:#64748b;">Color: {{ v.color }} | Plate: {{ v.licensePlate ?: 'N/A' }}</div>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p style="color:#64748b; font-size:0.85rem;">No vehicles recorded.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Appointment History -->
+    <div class="card">
+        <h3 style="font-size:1.1rem; font-family:'Poppins', sans-serif; margin-bottom:15px;">Service History</h3>
+        {% if appointments|length > 0 %}
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Service</th>
+                        <th>Vehicle</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for apt in appointments %}
+                        <tr>
+                            <td>{{ apt.appointmentDate|date('M j, Y - g:i A') }}</td>
+                            <td><strong>{{ apt.serviceType }}</strong></td>
+                            <td>{{ apt.vehicle ? apt.vehicle.displayName : 'N/A' }}</td>
+                            <td><span class="badge {{ apt.status }}">{{ apt.status }}</span></td>
+                            <td>
+                                <a href="{{ path('admin_job_execution', { id: apt.id }) }}" style="font-size:0.8rem; color:#2563eb; text-decoration:underline;">
+                                    Job & Inspections
+                                </a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p style="color:#64748b; font-size:0.9rem;">No appointments found for this client.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

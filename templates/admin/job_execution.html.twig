@@ -1,0 +1,109 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Job Execution #{{ appointment.id }} - Apex Admin{% endblock %}
+{% block page_title %}Job Execution & Inspection{% endblock %}
+{% block page_subtitle %}Appointment #{{ appointment.id }} &bull; {{ appointment.serviceType }} &bull; Client: {{ appointment.user.name }}{% endblock %}
+
+{% block body %}
+<div style="margin-bottom:20px;">
+    <a href="{{ path('admin_appointments') }}" style="color:var(--navy); font-size:0.85rem; font-weight:600;">&larr; Back to Appointments</a>
+</div>
+
+<!-- Appointment Summary -->
+<div class="card" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:15px; margin-bottom:24px;">
+    <div>
+        <div style="font-size:1.15rem; font-weight:700; color:#0f172a;">{{ appointment.serviceType }}</div>
+        <div style="font-size:0.9rem; color:#64748b;">
+            📅 {{ appointment.appointmentDate|date('F j, Y \\a\\t g:i A') }} &bull; Duration: {{ appointment.durationMinutes }}m
+        </div>
+        <div style="font-size:0.85rem; color:#475569; margin-top:4px;">
+            Vehicle: <strong>{{ appointment.vehicle ? appointment.vehicle.displayName : 'Not assigned' }}</strong> | Phone: {{ appointment.phone }}
+        </div>
+    </div>
+    <div style="display:flex; align-items:center; gap:10px;">
+        <span class="badge {{ appointment.status }}" style="font-size:0.9rem; padding:6px 14px;">{{ appointment.status }}</span>
+    </div>
+</div>
+
+<div style="display:grid; grid-template-columns:1fr 1fr; gap:24px;">
+    <!-- Pre-Inspection Section -->
+    <div class="card">
+        <h2 style="font-size:1.15rem; font-family:'Poppins', sans-serif; margin-bottom:15px; border-bottom:2px solid #3b82f6; padding-bottom:8px;">
+            1. Pre-Service Inspection
+        </h2>
+        <p style="color:#64748b; font-size:0.85rem; margin-bottom:15px;">Document existing scratches, rock chips, or paint defects before starting.</p>
+
+        <!-- Existing Pre-Inspection Photos -->
+        {% if pre_inspections|length > 0 %}
+            <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(130px, 1fr)); gap:10px; margin-bottom:18px;">
+                {% for insp in pre_inspections %}
+                    <div style="border:1px solid #e2e8f0; border-radius:6px; overflow:hidden;">
+                        <img src="{{ asset(insp.imagePath) }}" alt="Pre-inspection" style="width:100%; height:90px; object-fit:cover;">
+                        <div style="padding:6px; font-size:0.75rem; color:#475569;">{{ insp.notes ?: 'No notes' }}</div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p style="color:#94a3b8; font-size:0.85rem; margin-bottom:15px;">No pre-inspection photos uploaded yet.</p>
+        {% endif %}
+
+        <!-- Upload Pre-Inspection Form -->
+        <form action="{{ path('admin_job_execution', { id: appointment.id }) }}" method="POST" enctype="multipart/form-data" style="background:#f8fafc; padding:15px; border-radius:6px;">
+            <input type="hidden" name="action" value="upload_pre">
+            <div style="margin-bottom:10px;">
+                <label style="display:block; font-size:0.8rem; font-weight:600; margin-bottom:4px;">Photo of Defect / Vehicle</label>
+                <input type="file" name="image" required accept="image/*" style="width:100%; font-size:0.8rem;">
+            </div>
+            <div style="margin-bottom:12px;">
+                <label style="display:block; font-size:0.8rem; font-weight:600; margin-bottom:4px;">Inspection Notes</label>
+                <textarea name="notes" rows="2" placeholder="e.g. Swirl marks on hood, curb rash on rear right rim" style="width:100%; padding:8px; border:1px solid #cbd5e1; border-radius:4px; font-size:0.8rem;"></textarea>
+            </div>
+            <button type="submit" class="btn btn-navy" style="width:100%; padding:8px; font-size:0.85rem;">+ Save Pre-Inspection</button>
+        </form>
+    </div>
+
+    <!-- Post-Inspection Section -->
+    <div class="card">
+        <h2 style="font-size:1.15rem; font-family:'Poppins', sans-serif; margin-bottom:15px; border-bottom:2px solid #10b981; padding-bottom:8px;">
+            2. Post-Service Inspection & Showcase
+        </h2>
+        <p style="color:#64748b; font-size:0.85rem; margin-bottom:15px;">Document finished detailing results and optionally publish to public portfolio.</p>
+
+        <!-- Existing Post-Inspection Photos -->
+        {% if post_inspections|length > 0 %}
+            <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(130px, 1fr)); gap:10px; margin-bottom:18px;">
+                {% for insp in post_inspections %}
+                    <div style="border:1px solid #e2e8f0; border-radius:6px; overflow:hidden;">
+                        <img src="{{ asset(insp.imagePath) }}" alt="Post-inspection" style="width:100%; height:90px; object-fit:cover;">
+                        <div style="padding:6px; font-size:0.75rem; color:#475569;">{{ insp.notes ?: 'No notes' }}</div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p style="color:#94a3b8; font-size:0.85rem; margin-bottom:15px;">No post-inspection photos uploaded yet.</p>
+        {% endif %}
+
+        <!-- Upload Post-Inspection Form -->
+        <form action="{{ path('admin_job_execution', { id: appointment.id }) }}" method="POST" enctype="multipart/form-data" style="background:#f8fafc; padding:15px; border-radius:6px;">
+            <input type="hidden" name="action" value="upload_post">
+            <div style="margin-bottom:10px;">
+                <label style="display:block; font-size:0.8rem; font-weight:600; margin-bottom:4px;">Finished Result Photo</label>
+                <input type="file" name="image" required accept="image/*" style="width:100%; font-size:0.8rem;">
+            </div>
+            <div style="margin-bottom:10px;">
+                <label style="display:block; font-size:0.8rem; font-weight:600; margin-bottom:4px;">Notes / Treatment Performed</label>
+                <textarea name="notes" rows="2" placeholder="e.g. Paint polished, 2 layers ceramic coating applied" style="width:100%; padding:8px; border:1px solid #cbd5e1; border-radius:4px; font-size:0.8rem;"></textarea>
+            </div>
+            <div style="margin-bottom:14px; display:flex; align-items:center; gap:8px;">
+                <input type="checkbox" id="push_portfolio" name="push_portfolio" value="1" checked style="cursor:pointer;">
+                <label for="push_portfolio" style="font-size:0.8rem; font-weight:600; color:#0f172a; cursor:pointer;">
+                    Publish this image to the Public Portfolio Gallery
+                </label>
+            </div>
+            <button type="submit" class="btn btn-navy" style="width:100%; padding:8px; font-size:0.85rem; background:#059669;">
+                + Save Post-Inspection
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}

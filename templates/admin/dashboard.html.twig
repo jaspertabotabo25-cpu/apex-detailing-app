@@ -1,0 +1,113 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Admin Dashboard - Apex Detailing{% endblock %}
+{% block page_title %}Operations Overview{% endblock %}
+{% block page_subtitle %}Live metrics, schedule summary, and inventory alerts{% endblock %}
+
+{% block body %}
+<!-- KPI Cards -->
+<div class="kpi-grid">
+    <div class="kpi-card">
+        <div class="value">{{ total_appointments }}</div>
+        <div class="label">Total Bookings</div>
+    </div>
+    <div class="kpi-card" style="border-top: 4px solid #f59e0b;">
+        <div class="value" style="color: #d97706;">{{ pending_appointments }}</div>
+        <div class="label">Pending Confirmation</div>
+    </div>
+    <div class="kpi-card" style="border-top: 4px solid #10b981;">
+        <div class="value" style="color: #059669;">{{ approved_appointments }}</div>
+        <div class="label">Confirmed Jobs</div>
+    </div>
+    <div class="kpi-card" style="border-top: 4px solid #ef4444;">
+        <div class="value" style="color: {{ low_stock_items|length > 0 ? '#dc2626' : '#10b981' }};">
+            {{ low_stock_items|length }}
+        </div>
+        <div class="label">Low Stock Alerts</div>
+    </div>
+    <div class="kpi-card">
+        <div class="value">{{ total_clients }}</div>
+        <div class="label">Registered Clients</div>
+    </div>
+</div>
+
+<div style="display: grid; grid-template-columns: 2fr 1fr; gap: 24px;">
+    <!-- Recent Bookings Table -->
+    <div class="card">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+            <h2 style="font-size:1.15rem; font-family:'Poppins', sans-serif; margin:0;">Recent Appointments</h2>
+            <a href="{{ path('admin_appointments') }}" style="color:var(--navy); font-size:0.85rem; font-weight:600;">View All &rarr;</a>
+        </div>
+
+        {% if recent_bookings|length > 0 %}
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Client</th>
+                        <th>Service</th>
+                        <th>Date & Time</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for apt in recent_bookings %}
+                        <tr>
+                            <td>
+                                <strong>{{ apt.user.name }}</strong>
+                                <div style="font-size:0.75rem; color:#64748b;">{{ apt.phone }}</div>
+                            </td>
+                            <td>{{ apt.serviceType }}</td>
+                            <td>{{ apt.appointmentDate|date('M j, Y - g:i A') }}</td>
+                            <td>
+                                <span class="badge {{ apt.status }}">{{ apt.status }}</span>
+                            </td>
+                            <td>
+                                <a href="{{ path('admin_job_execution', { id: apt.id }) }}" style="font-size:0.8rem; color:#2563eb; text-decoration:underline;">Inspect / Job</a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p style="color:#64748b; font-size:0.9rem;">No appointments booked yet.</p>
+        {% endif %}
+    </div>
+
+    <!-- Low Stock Inventory Alerts -->
+    <div>
+        <div class="card">
+            <h2 style="font-size:1.15rem; font-family:'Poppins', sans-serif; margin:0 0 15px;">Supplies Stock Alert</h2>
+            {% if low_stock_items|length > 0 %}
+                <ul style="list-style:none; padding:0; margin:0;">
+                    {% for item in low_stock_items %}
+                        <li style="padding:12px 0; border-bottom:1px solid #f1f5f9; display:flex; justify-content:space-between; align-items:center;">
+                            <div>
+                                <strong style="font-size:0.9rem; color:#0f172a;">{{ item.itemName }}</strong>
+                                <div style="font-size:0.75rem; color:#ef4444;">Threshold: {{ item.lowStockThreshold }} units</div>
+                            </div>
+                            <span style="background:#fee2e2; color:#b91c1c; padding:3px 8px; border-radius:12px; font-weight:700; font-size:0.8rem;">
+                                {{ item.quantity }} left
+                            </span>
+                        </li>
+                    {% endfor %}
+                </ul>
+                <div style="margin-top:15px; text-align:center;">
+                    <a href="{{ path('admin_inventory') }}" class="btn btn-navy" style="font-size:0.85rem; padding:8px 16px;">Restock Inventory</a>
+                </div>
+            {% else %}
+                <p style="color:#10b981; font-size:0.9rem; font-weight:500;">✓ All inventory supplies are currently above minimum threshold.</p>
+            {% endif %}
+        </div>
+
+        <div class="card">
+            <h2 style="font-size:1.15rem; font-family:'Poppins', sans-serif; margin:0 0 12px;">Quick Shortcuts</h2>
+            <div style="display:flex; flex-direction:column; gap:8px;">
+                <a href="{{ path('admin_schedule') }}" class="btn btn-outline" style="text-align:center; padding:10px; font-size:0.85rem;">View Day Schedule</a>
+                <a href="{{ path('admin_services') }}" class="btn btn-outline" style="text-align:center; padding:10px; font-size:0.85rem;">Manage Detailing Packages</a>
+                <a href="{{ path('admin_portfolio') }}" class="btn btn-outline" style="text-align:center; padding:10px; font-size:0.85rem;">Upload Showcase Photo</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

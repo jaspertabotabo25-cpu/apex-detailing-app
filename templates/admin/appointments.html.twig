@@ -1,0 +1,110 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Manage Appointments - Apex Admin{% endblock %}
+{% block page_title %}Appointments & Bookings{% endblock %}
+{% block page_subtitle %}Review client requests, approve bookings, and launch job execution inspections{% endblock %}
+
+{% block body %}
+<div class="card">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; flex-wrap:wrap; gap:12px;">
+        <div style="display:flex; gap:8px;">
+            <a href="{{ path('admin_appointments') }}" class="btn {{ current_status is null ? 'btn-navy' : 'btn-outline' }}" style="padding:6px 14px; font-size:0.85rem;">All</a>
+            <a href="{{ path('admin_appointments', { status: 'pending' }) }}" class="btn {{ current_status == 'pending' ? 'btn-navy' : 'btn-outline' }}" style="padding:6px 14px; font-size:0.85rem;">Pending</a>
+            <a href="{{ path('admin_appointments', { status: 'approved' }) }}" class="btn {{ current_status == 'approved' ? 'btn-navy' : 'btn-outline' }}" style="padding:6px 14px; font-size:0.85rem;">Approved</a>
+            <a href="{{ path('admin_appointments', { status: 'cancelled' }) }}" class="btn {{ current_status == 'cancelled' ? 'btn-navy' : 'btn-outline' }}" style="padding:6px 14px; font-size:0.85rem;">Cancelled</a>
+        </div>
+        <div style="color:#64748b; font-size:0.85rem;">Total matching: <strong>{{ appointments|length }}</strong></div>
+    </div>
+
+    {% if appointments|length > 0 %}
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Client</th>
+                    <th>Vehicle</th>
+                    <th>Service</th>
+                    <th>Date & Time</th>
+                    <th>Location</th>
+                    <th>Status</th>
+                    <th>Job Execution</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for apt in appointments %}
+                    <tr>
+                        <td>#{{ apt.id }}</td>
+                        <td>
+                            <a href="{{ path('admin_client_profile', { id: apt.user.id }) }}" style="font-weight:600; color:#0f172a; text-decoration:none;">
+                                {{ apt.user.name }}
+                            </a>
+                            <div style="font-size:0.75rem; color:#64748b;">{{ apt.phone }}</div>
+                        </td>
+                        <td>
+                            {% if apt.vehicle %}
+                                <span style="font-size:0.85rem;">{{ apt.vehicle.displayName }}</span>
+                            {% else %}
+                                <span style="color:#94a3b8; font-size:0.8rem;">Unassigned</span>
+                            {% endif %}
+                        </td>
+                        <td><strong>{{ apt.serviceType }}</strong></td>
+                        <td>
+                            <div style="font-size:0.85rem; font-weight:500;">{{ apt.appointmentDate|date('M j, Y') }}</div>
+                            <div style="font-size:0.75rem; color:#64748b;">{{ apt.appointmentDate|date('g:i A') }} ({{ apt.durationMinutes }}m)</div>
+                        </td>
+                        <td style="max-width:180px; font-size:0.8rem; color:#475569;">{{ apt.location }}</td>
+                        <td>
+                            <select class="status-select" data-id="{{ apt.id }}" style="padding:6px 10px; border-radius:6px; border:1px solid #cbd5e1; font-size:0.8rem; background:#fff; cursor:pointer;">
+                                <option value="pending" {{ apt.status == 'pending' ? 'selected' : '' }}>Pending</option>
+                                <option value="approved" {{ apt.status == 'approved' ? 'selected' : '' }}>Approved</option>
+                                <option value="cancelled" {{ apt.status == 'cancelled' ? 'selected' : '' }}>Cancelled</option>
+                            </select>
+                        </td>
+                        <td>
+                            <a href="{{ path('admin_job_execution', { id: apt.id }) }}" class="btn btn-outline" style="padding:6px 12px; font-size:0.8rem;">
+                                📷 Inspection ({{ apt.inspections|length }})
+                            </a>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p style="color:#64748b; padding:20px 0; text-align:center;">No appointments found for this filter.</p>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block javascripts %}
+<script>
+    document.querySelectorAll('.status-select').forEach(select => {
+        select.addEventListener('change', function() {
+            const appointmentId = this.dataset.id;
+            const newStatus = this.value;
+            this.disabled = true;
+
+            const formData = new FormData();
+            formData.append('appointment_id', appointmentId);
+            formData.append('status', newStatus);
+
+            fetch('{{ path('admin_api_update_status') }}', {
+                method: 'POST',
+                body: formData
+            })
+            .then(res => res.json())
+            .then(data => {
+                select.disabled = false;
+                if (data.success) {
+                    showToast('Appointment #' + appointmentId + ' status set to ' + newStatus.toUpperCase());
+                } else {
+                    showToast(data.error || 'Failed to update status', true);
+                }
+            })
+            .catch(err => {
+                select.disabled = false;
+                showToast('Network error while updating status', true);
+            });
+        });
+    });
+</script>
+{% endblock %}

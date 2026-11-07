@@ -1,0 +1,49 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Client Directory - Apex Admin{% endblock %}
+{% block page_title %}Client CRM Directory{% endblock %}
+{% block page_subtitle %}Registered customers, saved garage vehicles, and detailing history{% endblock %}
+
+{% block body %}
+<div class="card">
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Client Name</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>Vehicles</th>
+                <th>Total Bookings</th>
+                <th>Joined</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for c in clients %}
+                <tr>
+                    <td>
+                        <strong>{{ c.name }}</strong>
+                        {% if c.isAdmin %}
+                            <span class="badge approved" style="font-size:0.65rem; margin-left:4px;">Staff</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ c.email }}</td>
+                    <td>{{ c.phone ?: 'None' }}</td>
+                    <td>
+                        <span style="background:#e0f2fe; color:#0369a1; padding:3px 8px; border-radius:12px; font-weight:600; font-size:0.75rem;">
+                            {{ c.vehicles|length }} cars
+                        </span>
+                    </td>
+                    <td><strong>{{ c.appointments|length }}</strong></td>
+                    <td style="color:#64748b; font-size:0.8rem;">{{ c.createdAt|date('M j, Y') }}</td>
+                    <td>
+                        <a href="{{ path('admin_client_profile', { id: c.id }) }}" class="btn btn-outline" style="padding:4px 10px; font-size:0.8rem;">
+                            View Profile &rarr;
+                        </a>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

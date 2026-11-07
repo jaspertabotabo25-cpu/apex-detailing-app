@@ -1,0 +1,86 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Schedule Timeline - Apex Admin{% endblock %}
+{% block page_title %}Schedule & Buffer Management{% endblock %}
+{% block page_subtitle %}Approved bookings timeline with duration and travel buffer times{% endblock %}
+
+{% block body %}
+<div class="card">
+    <h2 style="font-size:1.15rem; font-family:'Poppins', sans-serif; margin-bottom:15px;">Confirmed Jobs Schedule</h2>
+    <p style="color:#64748b; font-size:0.85rem; margin-bottom:20px;">Adjust job duration and travel buffer minutes to prevent mobile crew scheduling conflicts.</p>
+
+    {% if appointments|length > 0 %}
+        <div style="display:flex; flex-direction:column; gap:14px;">
+            {% for apt in appointments %}
+                <div style="border:1px solid #e2e8f0; border-left:5px solid #059669; border-radius:6px; padding:18px; background:#fff; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:15px;">
+                    <div>
+                        <div style="font-size:1rem; font-weight:600; color:#0f172a; margin-bottom:4px;">
+                            {{ apt.appointmentDate|date('F j, Y - g:i A') }} &bull; {{ apt.serviceType }}
+                        </div>
+                        <div style="font-size:0.85rem; color:#64748b;">
+                            Client: <strong>{{ apt.user.name }}</strong> ({{ apt.phone }}) | Location: {{ apt.location }}
+                        </div>
+                        {% if apt.vehicle %}
+                            <div style="font-size:0.8rem; color:#475569; margin-top:2px;">
+                                Vehicle: {{ apt.vehicle.displayName }}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div style="display:flex; align-items:center; gap:12px;">
+                        <div>
+                            <label style="font-size:0.75rem; color:#64748b; display:block;">Job (mins)</label>
+                            <input type="number" id="dur-{{ apt.id }}" value="{{ apt.durationMinutes }}" min="15" step="15" style="width:70px; padding:6px; border:1px solid #cbd5e1; border-radius:4px; font-size:0.85rem;">
+                        </div>
+                        <div>
+                            <label style="font-size:0.75rem; color:#64748b; display:block;">Buffer (mins)</label>
+                            <input type="number" id="buf-{{ apt.id }}" value="{{ apt.bufferMinutes }}" min="0" step="15" style="width:70px; padding:6px; border:1px solid #cbd5e1; border-radius:4px; font-size:0.85rem;">
+                        </div>
+                        <div style="padding-top:16px;">
+                            <button class="btn btn-navy save-schedule-btn" data-id="{{ apt.id }}" style="padding:6px 12px; font-size:0.8rem;">Save</button>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p style="color:#64748b; text-align:center; padding:30px 0;">No approved appointments scheduled yet.</p>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block javascripts %}
+<script>
+    document.querySelectorAll('.save-schedule-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const id = this.dataset.id;
+            const dur = document.getElementById('dur-' + id).value;
+            const buf = document.getElementById('buf-' + id).value;
+
+            this.disabled = true;
+            const formData = new FormData();
+            formData.append('id', id);
+            formData.append('duration', dur);
+            formData.append('buffer', buf);
+
+            fetch('{{ path('admin_api_update_schedule') }}', {
+                method: 'POST',
+                body: formData
+            })
+            .then(res => res.json())
+            .then(data => {
+                btn.disabled = false;
+                if (data.success) {
+                    showToast('Schedule duration and buffer updated for appointment #' + id);
+                } else {
+                    showToast(data.error || 'Failed to update schedule', true);
+                }
+            })
+            .catch(() => {
+                btn.disabled = false;
+                showToast('Network error while saving schedule', true);
+            });
+        });
+    });
+</script>
+{% endblock %}
