@@ -38,3 +38,4 @@ class ClientController extends AbstractController
         ]);
     }
 }
+

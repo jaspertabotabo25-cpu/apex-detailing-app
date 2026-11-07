@@ -139,3 +139,4 @@ class BookingController extends AbstractController
         return $this->redirectToRoute('app_my_appointments');
     }
 }
+

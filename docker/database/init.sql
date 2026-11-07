@@ -111,3 +111,4 @@ INSERT IGNORE INTO portfolio (image_path, description, created_at) VALUES
 ('/assets/work-interior-detailing.jpg', 'Complete interior rejuvenation with steam decontamination and leather conditioning.', NOW()),
 ('/assets/work-custom-rim.jpg', 'Custom wheel deep decontamination, caliber polish, and high-temp ceramic shield.', NOW()),
 ('/assets/work-full-body-wash.jpg', 'Touchless foam pre-wash and dual-bucket swirl-free maintenance wash.', NOW());
+

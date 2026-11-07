@@ -80,3 +80,4 @@ class InventoryController extends AbstractController
         return $this->redirectToRoute('admin_inventory');
     }
 }
+

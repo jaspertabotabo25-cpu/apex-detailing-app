@@ -19,6 +19,7 @@ RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
     zip \
     gd
 
+COPY docker/php/conf.d/ /usr/local/etc/php/conf.d/
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 WORKDIR /var/www/symfony
@@ -26,4 +27,3 @@ WORKDIR /var/www/symfony
 EXPOSE 9000
 
 CMD ["php-fpm"]
-

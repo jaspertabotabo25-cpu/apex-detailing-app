@@ -57,3 +57,4 @@ class AppointmentController extends AbstractController
         return new JsonResponse(['success' => true, 'status' => $status]);
     }
 }
+
